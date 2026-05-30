@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="Dagatal" />
 <meta name="theme-color" content="#f4e3e9" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Comfortaa:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
@@ -238,6 +239,12 @@
   /* ---- month grid ---- */
   .month-wrap { margin-top: 20px; }
   .dow-head { display:grid; grid-template-columns:repeat(7,1fr); gap:7px; margin-bottom:9px; padding:0 2px; }
+  .dow-sticky { position:sticky; top:0; z-index:5; padding-top:8px; padding-bottom:8px;
+    margin-bottom:2px; background:linear-gradient(var(--bg) 72%, transparent); }
+  .msect { margin-top:4px; }
+  .msect-cap { font-family:var(--heading-font),'Comfortaa',sans-serif; font-weight:600;
+    font-size:20px; color:var(--ink); margin:26px 0 12px 2px; letter-spacing:-.01em; }
+  .msect-cap .yr { color:var(--accent-deep); font-weight:500; }
   .dow-head span { text-align:center; font-family:var(--heading-font),sans-serif;
     font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--soft); }
   .month-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:7px; }
@@ -1187,7 +1194,7 @@ function DayCard({ date, isToday, picked, entries, holiday, onAdd, onText, onCol
 }
 
 /* ---------------- month view ---------------- */
-function MonthView({ anchor, today, entries, onPick }) {
+function MonthGrid({ anchor, today, entries, onPick }) {
   const y = anchor.getFullYear(), m = anchor.getMonth();
   const offset = (new Date(y, m, 1).getDay() + 6) % 7;
   const dim = new Date(y, m + 1, 0).getDate();
@@ -1197,28 +1204,49 @@ function MonthView({ anchor, today, entries, onPick }) {
   for (let i = 0; i < weeks * 7; i++) cells.push(addDays(start, i));
 
   return (
+    <div className="month-grid">
+      {cells.map((d) => {
+        const dk = keyOf(d);
+        const out = d.getMonth() !== m;
+        const hol = window.icelandicHolidayFor(dk);
+        const isToday = sameDay(d, today);
+        const has = entries[dk] && entries[dk].some((e) => e.text && e.text.trim());
+        const cls = ['mcell'];
+        if (out) cls.push('out');
+        if (!out && hol && hol.kind === 'public') cls.push('holiday');
+        if (isToday) cls.push('today');
+        return (
+          <button key={dk} className={cls.join(' ')} disabled={out}
+            title={hol ? hol.name : ''} onClick={() => !out && onPick(d)}>
+            <span className="n">{d.getDate()}</span>
+            {!out && has && <span className="ev" />}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function MonthView({ anchor, today, entries, onPick }) {
+  // Render the anchor month plus the following months so the user can simply
+  // scroll down to browse ahead.
+  const AHEAD = 13;
+  const months = [];
+  for (let i = 0; i < AHEAD; i++) months.push(addMonths(startOfMonth(anchor), i));
+
+  return (
     <div className="month-wrap">
-      <div className="dow-head">{DOW_MINI.map((d) => <span key={d}>{d}</span>)}</div>
-      <div className="month-grid">
-        {cells.map((d) => {
-          const dk = keyOf(d);
-          const out = d.getMonth() !== m;
-          const hol = window.icelandicHolidayFor(dk);
-          const isToday = sameDay(d, today);
-          const has = entries[dk] && entries[dk].some((e) => e.text && e.text.trim());
-          const cls = ['mcell'];
-          if (out) cls.push('out');
-          if (!out && hol && hol.kind === 'public') cls.push('holiday');
-          if (isToday) cls.push('today');
-          return (
-            <button key={dk} className={cls.join(' ')} disabled={out}
-              title={hol ? hol.name : ''} onClick={() => !out && onPick(d)}>
-              <span className="n">{d.getDate()}</span>
-              {!out && has && <span className="ev" />}
-            </button>
-          );
-        })}
-      </div>
+      <div className="dow-head dow-sticky">{DOW_MINI.map((d) => <span key={d}>{d}</span>)}</div>
+      {months.map((mo, i) => (
+        <div className="msect" key={keyOf(mo)}>
+          {i > 0 && (
+            <h2 className="msect-cap">
+              {cap(MONTHS[mo.getMonth()])} <span className="yr">{mo.getFullYear()}</span>
+            </h2>
+          )}
+          <MonthGrid anchor={mo} today={today} entries={entries} onPick={onPick} />
+        </div>
+      ))}
       <p className="month-hint">Veldu dag til að opna vikuna ✿</p>
     </div>
   );
@@ -1404,6 +1432,7 @@ function App() {
         )}
 
         {view === 'week' && <p className="footer-note">Færslur vistast sjálfkrafa á þessu tæki ♡</p>}
+        {view === 'list' && <p className="footer-note">Þú ert frábær og stendur þig vel ♡</p>}
       </div>
 
       <TweaksPanel>
