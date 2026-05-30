@@ -310,7 +310,18 @@
   .ev-input { border:none; outline:none; background:var(--badge); border-radius:12px;
     padding:12px 14px; font-family:'Nunito',sans-serif; font-size:16px; color:var(--ink); }
   .ev-input::placeholder { color:var(--soft); }
-  .ev-types { display:flex; gap:8px; flex-wrap:wrap; }
+  .ev-types { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .ev-tagchip-wrap { position:relative; display:inline-flex; }
+  .ev-tagdel { position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%;
+    border:none; background:var(--soft); color:#fff; font-size:12px; line-height:1; cursor:pointer;
+    display:grid; place-items:center; box-shadow:0 1px 3px var(--shadow); padding:0; }
+  .ev-tagdel:hover { background:var(--accent-deep); }
+  .ev-typenew { border-style:dashed !important; color:var(--accent-deep) !important; }
+  .ev-newtag { display:inline-flex; align-items:center; gap:4px; }
+  .ev-newtag-in { border:1.5px solid var(--accent); background:var(--surface); border-radius:999px;
+    padding:6px 12px; font-family:'Nunito',sans-serif; font-size:13px; color:var(--ink); outline:none; width:120px; }
+  .ev-newtag-ok { appearance:none; cursor:pointer; border:none; background:var(--accent-deep); color:#fff;
+    width:28px; height:28px; border-radius:50%; font-size:14px; display:grid; place-items:center; }
   .ev-typebtn { appearance:none; cursor:pointer; border:1.5px solid var(--line);
     background:var(--surface); color:var(--soft); border-radius:999px; padding:7px 13px;
     font-family:var(--heading-font),sans-serif; font-weight:600; font-size:13px;
@@ -329,7 +340,11 @@
   .ev-yearrow input[type=checkbox] { width:18px; height:18px; accent-color:var(--accent-deep); cursor:pointer; }
   .ev-year { width:88px; border:1px solid var(--line); background:var(--surface); border-radius:10px;
     padding:7px 10px; font-family:'Nunito',sans-serif; font-size:14px; color:var(--ink); outline:none; }
-  .ev-actions { display:flex; gap:9px; justify-content:flex-end; margin-top:2px; }
+  .ev-actions { display:flex; gap:9px; justify-content:flex-end; align-items:center; margin-top:2px; }
+  .ev-delbig { appearance:none; cursor:pointer; border:none; background:transparent; color:var(--accent-deep);
+    font-family:var(--heading-font),sans-serif; font-weight:600; font-size:14px; padding:10px 14px; border-radius:12px;
+    margin-right:auto; }
+  .ev-delbig:hover { background:var(--badge); }
   .ev-cancel { appearance:none; cursor:pointer; border:none; background:transparent; color:var(--soft);
     font-family:var(--heading-font),sans-serif; font-weight:600; font-size:14px; padding:10px 14px; border-radius:12px; }
   .ev-cancel:hover { background:var(--badge); }
@@ -340,10 +355,12 @@
   .ev-save:active { transform:scale(.97); }
 
   .ev-list { display:flex; flex-direction:column; gap:11px; }
-  .ev-card { position:relative; display:flex; align-items:center; gap:13px;
+  .ev-card { position:relative; display:flex; align-items:center; gap:13px; cursor:pointer;
     background:var(--surface); border:1px solid var(--line); border-radius:20px;
     padding:13px 15px; box-shadow:0 5px 16px var(--shadow);
     transition:box-shadow .18s ease, transform .18s ease; }
+  .ev-card:hover { box-shadow:0 9px 24px var(--shadow); }
+  .ev-card:active { transform:scale(.995); }
   .ev-card.soon { box-shadow:0 7px 22px var(--shadow), inset 0 0 0 1.5px var(--accent); }
   .ev-badge { flex:0 0 auto; width:50px; height:50px; border-radius:15px; color:#fff;
     display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1; }
@@ -354,16 +371,136 @@
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .ev-meta { display:flex; align-items:center; gap:9px; margin-top:4px; flex-wrap:wrap; }
   .ev-typechip { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; }
-  .ev-turns { font-size:12.5px; color:var(--soft); font-weight:600; }
+  .ev-turns { font-size:12.5px; color:var(--soft); font-weight:600; white-space:nowrap; }
   .ev-right { flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
   .ev-count { font-family:var(--heading-font),sans-serif; font-weight:700; font-size:12.5px;
     color:var(--accent-deep); background:var(--badge); padding:5px 10px; border-radius:999px; white-space:nowrap; }
   .ev-count.now { background:var(--accent-deep); color:#fff; }
+  .ev-edit { font-family:var(--heading-font),sans-serif; font-weight:600; font-size:11.5px;
+    color:var(--soft); opacity:.8; }
+  .ev-card:hover .ev-edit { color:var(--accent-deep); opacity:1; }
+  /* event rows inside Yfirlit */
+  .list-ev .list-evtag { font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;
+    margin-left:2px; white-space:nowrap; }
   .ev-del { appearance:none; border:none; background:transparent; cursor:pointer; color:var(--soft);
     width:24px; height:24px; border-radius:50%; display:grid; place-items:center; opacity:.55;
     transition:opacity .14s ease, color .14s ease; }
   .ev-del:hover { opacity:1; color:var(--accent-deep); }
   .ev-del svg { width:13px; height:13px; }
+
+  /* ---- settings gear + modal ---- */
+  .gear-btn {
+    position: fixed; top: calc(12px + env(safe-area-inset-top)); right: 14px; z-index: 60;
+    appearance: none; border: none; cursor: pointer;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--surface);
+    box-shadow: 0 2px 10px var(--shadow), inset 0 0 0 1px var(--line);
+    color: var(--accent-deep);
+    display: grid; place-items: center;
+    transition: transform .25s ease, background .16s ease;
+  }
+  .gear-btn:hover { background: var(--holiday-bg); }
+  .gear-btn:active { transform: scale(.88) rotate(50deg); }
+  .gear-btn svg { width: 18px; height: 18px; }
+
+  .set-overlay {
+    position: fixed; inset: 0; z-index: 120;
+    display: flex; align-items: flex-end; justify-content: center;
+    background: rgba(40, 28, 38, .34);
+    -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+    animation: setfade .2s ease;
+  }
+  @keyframes setfade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes setrise { from { transform: translateY(26px); opacity: .4; } to { transform: translateY(0); opacity: 1; } }
+  .set-sheet {
+    width: 100%; max-width: 468px; max-height: 92vh; overflow-y: auto;
+    background: var(--bg);
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -12px 44px rgba(0, 0, 0, .22);
+    padding: 6px 20px calc(26px + env(safe-area-inset-bottom));
+    animation: setrise .26s cubic-bezier(.2, .8, .3, 1);
+  }
+  @media (min-width: 520px) {
+    .set-overlay { align-items: center; padding: 22px; }
+    .set-sheet { border-radius: 26px; animation: setfade .2s ease; }
+  }
+  .set-grab { width: 42px; height: 5px; border-radius: 3px; background: var(--line); margin: 9px auto 4px; }
+  .set-head { display: flex; align-items: center; justify-content: space-between; margin: 8px 2px 4px; }
+  .set-title { font-family: var(--heading-font), 'Comfortaa', sans-serif; font-weight: 600;
+    font-size: 23px; color: var(--ink); margin: 0; }
+  .set-close { appearance: none; border: none; cursor: pointer;
+    width: 34px; height: 34px; border-radius: 50%; background: var(--badge);
+    color: var(--accent-deep); display: grid; place-items: center;
+    transition: background .16s ease, transform .14s ease; }
+  .set-close:hover { background: var(--holiday-bg); }
+  .set-close:active { transform: scale(.9); }
+  .set-close svg { width: 15px; height: 15px; }
+
+  .set-sect { margin-top: 22px; }
+  .set-label { font-family: var(--heading-font), 'Quicksand', sans-serif; font-weight: 700;
+    font-size: 11.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent-deep);
+    margin: 0 0 12px 2px; display: flex; align-items: center; gap: 8px; }
+  .set-label::after { content: ""; flex: 1 1 auto; height: 1px; background: var(--line); }
+
+  .theme-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; }
+  .theme-card { appearance: none; cursor: pointer; text-align: left;
+    border: 1.5px solid var(--line); background: var(--surface); border-radius: 18px;
+    padding: 11px; display: flex; flex-direction: column; gap: 9px;
+    box-shadow: 0 3px 11px var(--shadow);
+    transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease; }
+  .theme-card:hover { box-shadow: 0 7px 17px var(--shadow); transform: translateY(-1px); }
+  .theme-card.on { border-color: var(--accent-deep);
+    box-shadow: 0 7px 18px var(--shadow), inset 0 0 0 1.5px var(--accent-deep); }
+  .theme-sw { display: flex; height: 34px; border-radius: 11px; overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .05); }
+  .theme-sw span { flex: 1; }
+  .theme-name { font-family: var(--heading-font), 'Quicksand', sans-serif; font-weight: 600;
+    font-size: 14px; color: var(--ink); display: flex; align-items: center; gap: 7px; }
+  .theme-tick { width: 17px; height: 17px; border-radius: 50%; background: var(--accent-deep);
+    display: grid; place-items: center; margin-left: auto; flex: 0 0 auto; }
+  .theme-tick svg { width: 10px; height: 10px; stroke: #fff; }
+
+  .opt-list { display: flex; flex-direction: column; gap: 9px; }
+  .opt-row { appearance: none; cursor: pointer; width: 100%; font-family: inherit;
+    display: flex; align-items: center; gap: 13px;
+    border: 1.5px solid var(--line); background: var(--surface); border-radius: 16px;
+    padding: 13px 15px; box-shadow: 0 3px 11px var(--shadow);
+    transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease, background .14s ease; }
+  .opt-row:hover { box-shadow: 0 6px 15px var(--shadow); }
+  .opt-row.on { border-color: var(--accent-deep); background: var(--holiday-bg); }
+  .opt-main { flex: 1 1 auto; min-width: 0; text-align: left; }
+  .opt-name { display: block; font-family: var(--heading-font), 'Quicksand', sans-serif; font-weight: 600;
+    font-size: 16px; color: var(--ink); }
+  .opt-sub { display: block; font-size: 12.5px; color: var(--soft); margin-top: 3px; }
+  .opt-check { width: 23px; height: 23px; border-radius: 50%; flex: 0 0 auto;
+    border: 2px solid var(--line); display: grid; place-items: center;
+    transition: background .14s ease, border-color .14s ease; }
+  .opt-row.on .opt-check { border-color: var(--accent-deep); background: var(--accent-deep); }
+  .opt-check svg { width: 12px; height: 12px; stroke: #fff; opacity: 0; }
+  .opt-row.on .opt-check svg { opacity: 1; }
+  .opt-flag { width: 34px; height: 24px; border-radius: 6px; flex: 0 0 auto; overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .08); display: flex; flex-direction: column; }
+  .opt-flag i { flex: 1; display: flex; }
+  .opt-flag i b { flex: 1; }
+
+  .set-toggle-row { display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; padding: 14px 4px; border-bottom: 1px solid var(--line); }
+  .set-toggle-row:first-of-type { border-top: 1px solid var(--line); }
+  .set-toggle-txt { font-family: var(--heading-font), 'Quicksand', sans-serif; font-weight: 600;
+    font-size: 15px; color: var(--ink); }
+  .set-switch { position: relative; width: 46px; height: 27px; border: none; border-radius: 999px;
+    background: var(--line); cursor: pointer; padding: 0; flex: 0 0 auto; transition: background .18s ease; }
+  .set-switch[data-on="1"] { background: var(--accent-deep); }
+  .set-switch i { position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: transform .18s ease; }
+  .set-switch[data-on="1"] i { transform: translateX(19px); }
+  .set-seg { display: flex; background: var(--badge); border-radius: 999px; padding: 4px; gap: 2px; }
+  .set-seg button { appearance: none; border: none; cursor: pointer; flex: 1;
+    font-family: var(--heading-font), 'Quicksand', sans-serif; font-weight: 600; font-size: 13.5px;
+    color: var(--soft); padding: 8px 6px; border-radius: 999px; white-space: nowrap;
+    transition: background .16s ease, color .16s ease; }
+  .set-seg button.on { background: var(--surface); color: var(--accent-deep);
+    box-shadow: 0 2px 8px var(--shadow); }
 
   @media (max-width: 380px) {
     .month-title { font-size: 27px; }
@@ -374,97 +511,330 @@
 <body>
   <div id="root"></div>
 
+  <!-- localization + multi-country holidays (inlined plain JS, load before the app) -->
+  <script>
+/* i18n.js — Edy calendar localization (Icelandic / English / Spanish)
+   Attaches window.EdyI18n. Plain JS, no build step. */
+window.EdyI18n = (function () {
+  // language pickers show the native name
+  const langs = [
+    { id: 'is', native: 'Íslenska' },
+    { id: 'en', native: 'English' },
+    { id: 'es', native: 'Español' },
+  ];
+
+  // country whose public holidays drive the calendar's red days
+  const countries = [
+    { id: 'IS', label: { is: 'Ísland', en: 'Iceland', es: 'Islandia' } },
+    { id: 'US', label: { is: 'Bandaríkin', en: 'United States', es: 'Estados Unidos' } },
+    { id: 'ES', label: { is: 'Spánn', en: 'Spain', es: 'España' } },
+  ];
+
+  // Monday-first throughout (the whole app is built Monday-based)
+  const weekdaysFull = {
+    is: ['Mánudagur', 'Þriðjudagur', 'Miðvikudagur', 'Fimmtudagur', 'Föstudagur', 'Laugardagur', 'Sunnudagur'],
+    en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    es: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'],
+  };
+  const weekdaysMini = {
+    is: ['Mán', 'Þri', 'Mið', 'Fim', 'Fös', 'Lau', 'Sun'],
+    en: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    es: ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'],
+  };
+  const monthsFull = {
+    is: ['janúar', 'febrúar', 'mars', 'apríl', 'maí', 'júní', 'júlí', 'ágúst', 'september', 'október', 'nóvember', 'desember'],
+    en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    es: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+  };
+  const monthsShort = {
+    is: ['jan', 'feb', 'mar', 'apr', 'maí', 'jún', 'júl', 'ágú', 'sep', 'okt', 'nóv', 'des'],
+    en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    es: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+  };
+
+  const S = {
+    is: {
+      // kickers + titles
+      weekKicker: 'Vikudagatal', monthKicker: 'Mánaðardagatal',
+      listKicker: 'Yfirlit færslna', eventsKicker: 'Afmæli & tímamót',
+      listTitle: 'Yfirlit', eventsTitle: 'Viðburðir',
+      // view segmented control
+      segWeek: 'Vika', segMonth: 'Mánuður', segList: 'Yfirlit', segEvents: 'Viðburðir',
+      today: 'Í dag', back: 'Til baka', forward: 'Áfram',
+      // entries
+      addEntry: 'Bæta við færslu', addMore: 'Bæta við',
+      writeHere: 'Skrifaðu hér…', textColor: 'Litur á texta', delete: 'Eyða',
+      monthHint: 'Veldu dag til að opna vikuna ✿',
+      listEmpty1: 'Ekkert skráð ennþá.', listEmpty2: 'Skrifaðu eitthvað eða bættu við viðburði.',
+      // events
+      addEvent: 'Bæta við viðburði', eventNamePh: 'Nafn eða tilefni…',
+      newTag: '+ Nýtt merki', newTagPh: 'Nýtt merki…', delTag: 'Eyða merki',
+      countYearsFrom: 'Telja ár frá', cancel: 'Hætta við',
+      saveChanges: 'Vista breytingar', saveEvent: 'Vista viðburð', edit: 'Breyta',
+      eventsEmpty1: 'Engir viðburðir ennþá.', eventsEmpty2: 'Bættu við afmælum og tímamótum.',
+      cdToday: 'Í dag ✿', cdTomorrow: 'Á morgun', cdNextWeek: 'Í næstu viku',
+      cdInDays: (n) => `Eftir ${n} daga`,
+      ageBirthday: (n) => `verður ${n} ára`, ageOther: (n) => `${n} ára`,
+      tagBirthday: 'Afmæli', tagAnniv: 'Brúðkaupsafmæli',
+      footerWeek: 'Færslur vistast sjálfkrafa á þessu tæki ♡',
+      footerList: 'Þú ert frábær og stendur þig vel ♡',
+      footerEvents: 'Gleymdu aldrei stóru stundunum ♡',
+      // settings
+      settings: 'Stillingar', theme: 'Þema', language: 'Tungumál', country: 'Land',
+      appearance: 'Útlit', florals: 'Blómaskraut', headingFont: 'Fyrirsagnaletur',
+      countryNote: 'Stýrir frídögum í dagatalinu', close: 'Loka', settingsAria: 'Stillingar',
+    },
+    en: {
+      weekKicker: 'Weekly planner', monthKicker: 'Monthly calendar',
+      listKicker: 'Notes overview', eventsKicker: 'Birthdays & milestones',
+      listTitle: 'Overview', eventsTitle: 'Events',
+      segWeek: 'Week', segMonth: 'Month', segList: 'Overview', segEvents: 'Events',
+      today: 'Today', back: 'Back', forward: 'Forward',
+      addEntry: 'Add a note', addMore: 'Add',
+      writeHere: 'Write here…', textColor: 'Text colour', delete: 'Delete',
+      monthHint: 'Pick a day to open its week ✿',
+      listEmpty1: 'Nothing here yet.', listEmpty2: 'Write something or add an event.',
+      addEvent: 'Add an event', eventNamePh: 'Name or occasion…',
+      newTag: '+ New tag', newTagPh: 'New tag…', delTag: 'Delete tag',
+      countYearsFrom: 'Count years from', cancel: 'Cancel',
+      saveChanges: 'Save changes', saveEvent: 'Save event', edit: 'Edit',
+      eventsEmpty1: 'No events yet.', eventsEmpty2: 'Add birthdays and milestones.',
+      cdToday: 'Today ✿', cdTomorrow: 'Tomorrow', cdNextWeek: 'Next week',
+      cdInDays: (n) => `In ${n} days`,
+      ageBirthday: (n) => `turns ${n}`, ageOther: (n) => `${n} years`,
+      tagBirthday: 'Birthday', tagAnniv: 'Anniversary',
+      footerWeek: 'Notes save automatically on this device ♡',
+      footerList: 'You are doing wonderfully ♡',
+      footerEvents: 'Never forget the big moments ♡',
+      settings: 'Settings', theme: 'Theme', language: 'Language', country: 'Country',
+      appearance: 'Appearance', florals: 'Floral decoration', headingFont: 'Heading font',
+      countryNote: 'Sets which public holidays appear', close: 'Done', settingsAria: 'Settings',
+    },
+    es: {
+      weekKicker: 'Agenda semanal', monthKicker: 'Calendario mensual',
+      listKicker: 'Resumen de notas', eventsKicker: 'Cumpleaños y aniversarios',
+      listTitle: 'Resumen', eventsTitle: 'Eventos',
+      segWeek: 'Semana', segMonth: 'Mes', segList: 'Resumen', segEvents: 'Eventos',
+      today: 'Hoy', back: 'Atrás', forward: 'Adelante',
+      addEntry: 'Añadir nota', addMore: 'Añadir',
+      writeHere: 'Escribe aquí…', textColor: 'Color del texto', delete: 'Eliminar',
+      monthHint: 'Elige un día para abrir su semana ✿',
+      listEmpty1: 'Nada todavía.', listEmpty2: 'Escribe algo o añade un evento.',
+      addEvent: 'Añadir evento', eventNamePh: 'Nombre u ocasión…',
+      newTag: '+ Nueva etiqueta', newTagPh: 'Nueva etiqueta…', delTag: 'Eliminar etiqueta',
+      countYearsFrom: 'Contar años desde', cancel: 'Cancelar',
+      saveChanges: 'Guardar cambios', saveEvent: 'Guardar evento', edit: 'Editar',
+      eventsEmpty1: 'Sin eventos todavía.', eventsEmpty2: 'Añade cumpleaños y aniversarios.',
+      cdToday: '¡Hoy! ✿', cdTomorrow: 'Mañana', cdNextWeek: 'La próxima semana',
+      cdInDays: (n) => `En ${n} días`,
+      ageBirthday: (n) => `cumple ${n}`, ageOther: (n) => `${n} años`,
+      tagBirthday: 'Cumpleaños', tagAnniv: 'Aniversario',
+      footerWeek: 'Las notas se guardan solas en este dispositivo ♡',
+      footerList: 'Lo estás haciendo de maravilla ♡',
+      footerEvents: 'Nunca olvides los grandes momentos ♡',
+      settings: 'Ajustes', theme: 'Tema', language: 'Idioma', country: 'País',
+      appearance: 'Apariencia', florals: 'Decoración floral', headingFont: 'Tipografía de títulos',
+      countryNote: 'Define qué días festivos aparecen', close: 'Listo', settingsAria: 'Ajustes',
+    },
+  };
+
+  function bundle(lang) {
+    const l = S[lang] ? lang : 'is';
+    return {
+      lang: l, wd: weekdaysFull[l], wdMini: weekdaysMini[l],
+      months: monthsFull[l], monthsShort: monthsShort[l], s: S[l],
+    };
+  }
+
+  return { langs, countries, weekdaysFull, weekdaysMini, monthsFull, monthsShort, strings: S, bundle };
+})();
+
+</script>
+  <script>
+/* holidays-intl.js — public holidays for Iceland / United States / Spain.
+   Attaches window.EdyHolidays. Holiday NAMES are localized to is/en/es so the
+   label follows the app language; the date set follows the chosen country.
+   kind: 'public' (red day) | 'special' (half-day / observance). */
+window.EdyHolidays = (function () {
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function key(y, m, d) { return `${y}-${pad(m)}-${pad(d)}`; }
+  function addDays(date, n) { const d = new Date(date.getTime()); d.setDate(d.getDate() + n); return d; }
+  function k(date) { return key(date.getFullYear(), date.getMonth() + 1, date.getDate()); }
+
+  // Anonymous Gregorian algorithm — Easter Sunday for a given year.
+  function easterSunday(year) {
+    const a = year % 19, b = Math.floor(year / 100), c = year % 100;
+    const d = Math.floor(b / 4), e = b % 4;
+    const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4), kk = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - kk) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31);
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(year, month - 1, day);
+  }
+  // dow: 0=Sun..6=Sat. nth (1-based) weekday of a month (month 0-based).
+  function nthWeekday(year, month, dow, n) {
+    let count = 0;
+    for (let d = 1; d <= 31; d++) {
+      const dt = new Date(year, month, d);
+      if (dt.getMonth() !== month) break;
+      if (dt.getDay() === dow) { count++; if (count === n) return dt; }
+    }
+    return null;
+  }
+  function lastWeekday(year, month, dow) {
+    const last = new Date(year, month + 1, 0).getDate();
+    for (let d = last; d >= 1; d--) {
+      const dt = new Date(year, month, d);
+      if (dt.getDay() === dow) return dt;
+    }
+    return null;
+  }
+
+  // id → localized name. Each holiday is shown in the app's current language.
+  const NAMES = {
+    // ── Iceland ──
+    is_newyear:     { is: 'Nýársdagur',             en: "New Year's Day",        es: 'Año Nuevo' },
+    is_maundy:      { is: 'Skírdagur',              en: 'Maundy Thursday',       es: 'Jueves Santo' },
+    is_goodfri:     { is: 'Föstudagurinn langi',    en: 'Good Friday',           es: 'Viernes Santo' },
+    is_easter:      { is: 'Páskadagur',             en: 'Easter Sunday',         es: 'Domingo de Pascua' },
+    is_eastermon:   { is: 'Annar í páskum',         en: 'Easter Monday',         es: 'Lunes de Pascua' },
+    is_firstsummer: { is: 'Sumardagurinn fyrsti',   en: 'First Day of Summer',   es: 'Primer Día de Verano' },
+    is_labour:      { is: 'Verkalýðsdagurinn',      en: 'Labour Day',            es: 'Día del Trabajo' },
+    is_ascension:   { is: 'Uppstigningardagur',     en: 'Ascension Day',         es: 'Ascensión' },
+    is_whit:        { is: 'Hvítasunnudagur',        en: 'Whit Sunday',           es: 'Pentecostés' },
+    is_whitmon:     { is: 'Annar í hvítasunnu',     en: 'Whit Monday',           es: 'Lunes de Pentecostés' },
+    is_nationalday: { is: 'Þjóðhátíðardagurinn',    en: 'National Day',          es: 'Día Nacional' },
+    is_commerce:    { is: 'Frídagur verslunarmanna', en: 'Commerce Day',         es: 'Día del Comercio' },
+    is_xmaseve:     { is: 'Aðfangadagur',           en: 'Christmas Eve',         es: 'Nochebuena' },
+    is_xmas:        { is: 'Jóladagur',              en: 'Christmas Day',         es: 'Navidad' },
+    is_boxing:      { is: 'Annar í jólum',          en: 'Boxing Day',            es: 'San Esteban' },
+    is_nye:         { is: 'Gamlársdagur',           en: "New Year's Eve",        es: 'Nochevieja' },
+    // ── United States ──
+    us_newyear:      { is: 'Nýársdagur',            en: "New Year's Day",        es: 'Año Nuevo' },
+    us_mlk:          { is: 'Dagur Martin Luther King', en: 'Martin Luther King Jr. Day', es: 'Día de Martin Luther King' },
+    us_presidents:   { is: 'Forsetadagur',          en: "Presidents' Day",       es: 'Día de los Presidentes' },
+    us_memorial:     { is: 'Minningardagur',        en: 'Memorial Day',          es: 'Día de los Caídos' },
+    us_juneteenth:   { is: 'Juneteenth',            en: 'Juneteenth',            es: 'Juneteenth' },
+    us_independence: { is: 'Sjálfstæðisdagur',      en: 'Independence Day',      es: 'Día de la Independencia' },
+    us_labor:        { is: 'Verkalýðsdagur',        en: 'Labor Day',             es: 'Día del Trabajo' },
+    us_columbus:     { is: 'Kólumbusardagur',       en: 'Columbus Day',          es: 'Día de la Raza' },
+    us_veterans:     { is: 'Dagur uppgjafahermanna', en: 'Veterans Day',         es: 'Día de los Veteranos' },
+    us_thanksgiving: { is: 'Þakkargjörðarhátíð',    en: 'Thanksgiving',          es: 'Acción de Gracias' },
+    us_xmaseve:      { is: 'Aðfangadagur',          en: 'Christmas Eve',         es: 'Nochebuena' },
+    us_xmas:         { is: 'Jóladagur',             en: 'Christmas Day',         es: 'Navidad' },
+    us_nye:          { is: 'Gamlársdagur',          en: "New Year's Eve",        es: 'Nochevieja' },
+    // ── Spain ──
+    es_newyear:      { is: 'Nýársdagur',            en: "New Year's Day",        es: 'Año Nuevo' },
+    es_epiphany:     { is: 'Þrettándinn',           en: 'Epiphany',              es: 'Epifanía del Señor' },
+    es_maundy:       { is: 'Skírdagur',             en: 'Maundy Thursday',       es: 'Jueves Santo' },
+    es_goodfri:      { is: 'Föstudagurinn langi',   en: 'Good Friday',           es: 'Viernes Santo' },
+    es_labour:       { is: 'Verkalýðsdagurinn',     en: 'Labour Day',            es: 'Fiesta del Trabajo' },
+    es_assumption:   { is: 'Maríumessa',            en: 'Assumption of Mary',    es: 'Asunción de la Virgen' },
+    es_national:     { is: 'Þjóðhátíðardagur Spánar', en: 'National Day of Spain', es: 'Fiesta Nacional de España' },
+    es_allsaints:    { is: 'Allraheilagramessa',    en: "All Saints' Day",       es: 'Todos los Santos' },
+    es_constitution: { is: 'Stjórnarskrárdagur',    en: 'Constitution Day',      es: 'Día de la Constitución' },
+    es_immaculate:   { is: 'Hreinn getnaður',       en: 'Immaculate Conception', es: 'Inmaculada Concepción' },
+    es_xmaseve:      { is: 'Aðfangadagur',          en: 'Christmas Eve',         es: 'Nochebuena' },
+    es_xmas:         { is: 'Jóladagur',             en: 'Christmas Day',         es: 'Navidad' },
+    es_nye:          { is: 'Gamlársdagur',          en: "New Year's Eve",        es: 'Nochevieja' },
+  };
+
+  function iceland(year) {
+    const h = {};
+    const easter = easterSunday(year);
+    h[k(addDays(easter, -3))] = { id: 'is_maundy', kind: 'public' };
+    h[k(addDays(easter, -2))] = { id: 'is_goodfri', kind: 'public' };
+    h[k(easter)] = { id: 'is_easter', kind: 'public' };
+    h[k(addDays(easter, 1))] = { id: 'is_eastermon', kind: 'public' };
+    h[k(addDays(easter, 39))] = { id: 'is_ascension', kind: 'public' };
+    h[k(addDays(easter, 49))] = { id: 'is_whit', kind: 'public' };
+    h[k(addDays(easter, 50))] = { id: 'is_whitmon', kind: 'public' };
+    // Sumardagurinn fyrsti — first Thursday in Apr 19–25
+    for (let day = 19; day <= 25; day++) {
+      const d = new Date(year, 3, day);
+      if (d.getDay() === 4) { h[k(d)] = { id: 'is_firstsummer', kind: 'public' }; break; }
+    }
+    h[k(nthWeekday(year, 7, 1, 1))] = { id: 'is_commerce', kind: 'public' }; // 1st Mon Aug
+    h[key(year, 1, 1)] = { id: 'is_newyear', kind: 'public' };
+    h[key(year, 5, 1)] = { id: 'is_labour', kind: 'public' };
+    h[key(year, 6, 17)] = { id: 'is_nationalday', kind: 'public' };
+    h[key(year, 12, 25)] = { id: 'is_xmas', kind: 'public' };
+    h[key(year, 12, 26)] = { id: 'is_boxing', kind: 'public' };
+    h[key(year, 12, 24)] = { id: 'is_xmaseve', kind: 'special' };
+    h[key(year, 12, 31)] = { id: 'is_nye', kind: 'special' };
+    return h;
+  }
+
+  function usa(year) {
+    const h = {};
+    h[key(year, 1, 1)] = { id: 'us_newyear', kind: 'public' };
+    h[k(nthWeekday(year, 0, 1, 3))] = { id: 'us_mlk', kind: 'public' };        // 3rd Mon Jan
+    h[k(nthWeekday(year, 1, 1, 3))] = { id: 'us_presidents', kind: 'public' }; // 3rd Mon Feb
+    h[k(lastWeekday(year, 4, 1))] = { id: 'us_memorial', kind: 'public' };     // last Mon May
+    h[key(year, 6, 19)] = { id: 'us_juneteenth', kind: 'public' };
+    h[key(year, 7, 4)] = { id: 'us_independence', kind: 'public' };
+    h[k(nthWeekday(year, 8, 1, 1))] = { id: 'us_labor', kind: 'public' };      // 1st Mon Sep
+    h[k(nthWeekday(year, 9, 1, 2))] = { id: 'us_columbus', kind: 'public' };   // 2nd Mon Oct
+    h[key(year, 11, 11)] = { id: 'us_veterans', kind: 'public' };
+    h[k(nthWeekday(year, 10, 4, 4))] = { id: 'us_thanksgiving', kind: 'public' }; // 4th Thu Nov
+    h[key(year, 12, 25)] = { id: 'us_xmas', kind: 'public' };
+    h[key(year, 12, 24)] = { id: 'us_xmaseve', kind: 'special' };
+    h[key(year, 12, 31)] = { id: 'us_nye', kind: 'special' };
+    return h;
+  }
+
+  function spain(year) {
+    const h = {};
+    const easter = easterSunday(year);
+    h[key(year, 1, 1)] = { id: 'es_newyear', kind: 'public' };
+    h[key(year, 1, 6)] = { id: 'es_epiphany', kind: 'public' };
+    h[k(addDays(easter, -3))] = { id: 'es_maundy', kind: 'public' };  // Jueves Santo
+    h[k(addDays(easter, -2))] = { id: 'es_goodfri', kind: 'public' }; // Viernes Santo
+    h[key(year, 5, 1)] = { id: 'es_labour', kind: 'public' };
+    h[key(year, 8, 15)] = { id: 'es_assumption', kind: 'public' };
+    h[key(year, 10, 12)] = { id: 'es_national', kind: 'public' };
+    h[key(year, 11, 1)] = { id: 'es_allsaints', kind: 'public' };
+    h[key(year, 12, 6)] = { id: 'es_constitution', kind: 'public' };
+    h[key(year, 12, 8)] = { id: 'es_immaculate', kind: 'public' };
+    h[key(year, 12, 25)] = { id: 'es_xmas', kind: 'public' };
+    h[key(year, 12, 24)] = { id: 'es_xmaseve', kind: 'special' };
+    h[key(year, 12, 31)] = { id: 'es_nye', kind: 'special' };
+    return h;
+  }
+
+  const COMPUTE = { IS: iceland, US: usa, ES: spain };
+  const cache = {};
+  function compute(country, year) {
+    const ck = country + ':' + year;
+    if (cache[ck]) return cache[ck];
+    const fn = COMPUTE[country] || iceland;
+    const r = fn(year);
+    cache[ck] = r;
+    return r;
+  }
+  function nameOf(id, lang) {
+    const n = NAMES[id];
+    return n ? (n[lang] || n.en || n.is) : id;
+  }
+  function lookup(country, lang, dateKey) {
+    const year = parseInt(dateKey.slice(0, 4), 10);
+    const h = compute(country, year)[dateKey];
+    if (!h) return null;
+    return { name: nameOf(h.id, lang), kind: h.kind };
+  }
+
+  return { NAMES, compute, nameOf, lookup };
+})();
+
+</script>
+
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
-<script type="text/babel" data-presets="react">
-// holidays.jsx — Icelandic public holidays (almennir frídagar / lögbundnir frídagar)
-// Computes fixed + movable (Easter-based) holidays for any year.
-// Exposes window.icelandicHolidays(year) -> { 'YYYY-MM-DD': { name, kind } }
-// kind: 'public' (red day) | 'special' (half-day / observance)
-
-(function () {
-  function pad(n) { return String(n).padStart(2, '0'); }
-  function key(y, m, d) { return `${y}-${pad(m)}-${pad(d)}`; }
-
-  // Anonymous Gregorian algorithm — returns Date of Easter Sunday for given year.
-  function easterSunday(year) {
-    const a = year % 19;
-    const b = Math.floor(year / 100);
-    const c = year % 100;
-    const d = Math.floor(b / 4);
-    const e = b % 4;
-    const f = Math.floor((b + 8) / 25);
-    const g = Math.floor((b - f + 1) / 3);
-    const h = (19 * a + b - d - g + 15) % 30;
-    const i = Math.floor(c / 4);
-    const k = c % 4;
-    const l = (32 + 2 * e + 2 * i - h - k) % 7;
-    const m = Math.floor((a + 11 * h + 22 * l) / 451);
-    const month = Math.floor((h + l - 7 * m + 114) / 31); // 3=March, 4=April
-    const day = ((h + l - 7 * m + 114) % 31) + 1;
-    return new Date(year, month - 1, day);
-  }
-
-  function addDays(date, n) {
-    const d = new Date(date.getTime());
-    d.setDate(d.getDate() + n);
-    return d;
-  }
-  function k(date) { return key(date.getFullYear(), date.getMonth() + 1, date.getDate()); }
-
-  const cache = {};
-
-  function compute(year) {
-    if (cache[year]) return cache[year];
-    const h = {};
-    const easter = easterSunday(year);
-
-    // Movable, Easter-based
-    h[k(addDays(easter, -3))] = { name: 'Skírdagur', kind: 'public' };
-    h[k(addDays(easter, -2))] = { name: 'Föstudagurinn langi', kind: 'public' };
-    h[k(easter)] = { name: 'Páskadagur', kind: 'public' };
-    h[k(addDays(easter, 1))] = { name: 'Annar í páskum', kind: 'public' };
-    h[k(addDays(easter, 39))] = { name: 'Uppstigningardagur', kind: 'public' };
-    h[k(addDays(easter, 49))] = { name: 'Hvítasunnudagur', kind: 'public' };
-    h[k(addDays(easter, 50))] = { name: 'Annar í hvítasunnu', kind: 'public' };
-
-    // Sumardagurinn fyrsti — first Thursday after April 18 (Thu within Apr 19–25)
-    for (let day = 19; day <= 25; day++) {
-      const d = new Date(year, 3, day); // April
-      if (d.getDay() === 4) { h[k(d)] = { name: 'Sumardagurinn fyrsti', kind: 'public' }; break; }
-    }
-
-    // Frídagur verslunarmanna — first Monday of August
-    for (let day = 1; day <= 7; day++) {
-      const d = new Date(year, 7, day); // August
-      if (d.getDay() === 1) { h[k(d)] = { name: 'Frídagur verslunarmanna', kind: 'public' }; break; }
-    }
-
-    // Fixed dates
-    h[key(year, 1, 1)] = { name: 'Nýársdagur', kind: 'public' };
-    h[key(year, 5, 1)] = { name: 'Verkalýðsdagurinn', kind: 'public' };
-    h[key(year, 6, 17)] = { name: 'Þjóðhátíðardagurinn', kind: 'public' };
-    h[key(year, 12, 25)] = { name: 'Jóladagur', kind: 'public' };
-    h[key(year, 12, 26)] = { name: 'Annar í jólum', kind: 'public' };
-
-    // Half-days / observances
-    h[key(year, 12, 24)] = { name: 'Aðfangadagur', kind: 'special' };
-    h[key(year, 12, 31)] = { name: 'Gamlársdagur', kind: 'special' };
-
-    cache[year] = h;
-    return h;
-  }
-
-  window.icelandicHolidays = compute;
-  window.icelandicHolidayFor = function (dateKey) {
-    const year = parseInt(dateKey.slice(0, 4), 10);
-    return compute(year)[dateKey] || null;
-  };
-})();
-
-</script>
   <script type="text/babel" data-presets="react">
 
 /* BEGIN USAGE */
@@ -1012,17 +1382,26 @@ Object.assign(window, {
 // calendar.jsx — Vikudagatal + Mánaðardagatal, Icelandic, mobile-first.
 const { useState, useEffect, useRef, useCallback } = React;
 
-/* ---------------- Icelandic locale ---------------- */
-const WEEKDAYS = ['Mánudagur','Þriðjudagur','Miðvikudagur','Fimmtudagur','Föstudagur','Laugardagur','Sunnudagur'];
-const DOW_MINI = ['Mán','Þri','Mið','Fim','Fös','Lau','Sun'];
-const MONTHS = ['janúar','febrúar','mars','apríl','maí','júní','júlí','ágúst','september','október','nóvember','desember'];
-const MONTHS_SHORT = ['jan','feb','mar','apr','maí','jún','júl','ágú','sep','okt','nóv','des'];
+/* ---------------- locale (is / en / es) ---------------- */
+// These are reassigned at the top of <App> from the chosen language, so every
+// component reading them re-renders in the right language (render is top-down
+// and synchronous, so children see the values App sets this pass).
+let L = window.EdyI18n.bundle('is');
+let WEEKDAYS = L.wd;
+let DOW_MINI = L.wdMini;
+let MONTHS = L.months;
+let MONTHS_SHORT = L.monthsShort;
+const tr = (k) => (L.s && L.s[k] != null ? L.s[k] : k);
+function applyLang(lang) {
+  L = window.EdyI18n.bundle(lang);
+  WEEKDAYS = L.wd; DOW_MINI = L.wdMini; MONTHS = L.months; MONTHS_SHORT = L.monthsShort;
+}
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /* ---------------- palettes ---------------- */
 const PALETTES = {
   blush: {
-    label: 'Bleikt', dots: ['#f4e4e9', '#e9a9bd', '#d27a96'],
+    label: 'Bleikt', labels: { is: 'Bleikt', en: 'Blush', es: 'Rosa' }, dots: ['#f4e4e9', '#e9a9bd', '#d27a96'],
     vars: {
       '--bg': '#f4e3e9', '--bg-glow': '#fbeef2', '--surface': '#fffafb',
       '--ink': '#5a4750', '--soft': '#b197a1', '--accent': '#e9a9bd', '--accent-deep': '#cf7691',
@@ -1031,7 +1410,7 @@ const PALETTES = {
     },
   },
   mauve: {
-    label: 'Lillablátt', dots: ['#ece6f3', '#b89fd4', '#8f6fc0'],
+    label: 'Lillablátt', labels: { is: 'Lillablátt', en: 'Mauve', es: 'Malva' }, dots: ['#ece6f3', '#b89fd4', '#8f6fc0'],
     vars: {
       '--bg': '#ebe5f2', '--bg-glow': '#f5f0fb', '--surface': '#fdfbff',
       '--ink': '#514760', '--soft': '#a395b3', '--accent': '#bda3d8', '--accent-deep': '#8d6dbe',
@@ -1040,7 +1419,7 @@ const PALETTES = {
     },
   },
   cream: {
-    label: 'Gyllt', dots: ['#f1e9dc', '#d8b86a', '#b08a35'],
+    label: 'Gyllt', labels: { is: 'Gyllt', en: 'Golden', es: 'Dorado' }, dots: ['#f1e9dc', '#d8b86a', '#b08a35'],
     vars: {
       '--bg': '#f1e8d9', '--bg-glow': '#fbf4e7', '--surface': '#fffdf8',
       '--ink': '#5d5340', '--soft': '#b0a283', '--accent': '#d8b86a', '--accent-deep': '#b18b3c',
@@ -1049,12 +1428,39 @@ const PALETTES = {
     },
   },
   rose: {
-    label: 'Rós & salvía', dots: ['#e7e4da', '#c98b94', '#a96670'],
+    label: 'Rós & salvía', labels: { is: 'Rós & salvía', en: 'Rose & sage', es: 'Rosa y salvia' }, dots: ['#e7e4da', '#c98b94', '#a96670'],
     vars: {
       '--bg': '#e8e6dd', '--bg-glow': '#f4f2ea', '--surface': '#fffafa',
       '--ink': '#5e4f4c', '--soft': '#a8978f', '--accent': '#cf929b', '--accent-deep': '#a96670',
       '--line': '#eadfdd', '--holiday-bg': '#f4e4e5', '--badge': '#f4e7e7', '--weekend': '#f6f3ec',
       '--shadow': 'rgba(140,96,100,0.14)', '--entry-hover': '#f3eceb', '--floral': '#9aab8c',
+    },
+  },
+  slate: {
+    label: 'Stál', labels: { is: 'Stál', en: 'Slate', es: 'Pizarra' }, dots: ['#dfe4ea', '#5b7691', '#33485f'],
+    vars: {
+      '--bg': '#eceef1', '--bg-glow': '#f4f6f8', '--surface': '#ffffff',
+      '--ink': '#28323e', '--soft': '#8593a3', '--accent': '#5b7691', '--accent-deep': '#33485f',
+      '--line': '#dfe3e8', '--holiday-bg': '#e6ecf2', '--badge': '#e9edf1', '--weekend': '#f3f5f7',
+      '--shadow': 'rgba(40,60,84,0.16)', '--entry-hover': '#eef1f4', '--floral': '#8a9bb0',
+    },
+  },
+  neutral: {
+    label: 'Hlutlaust', labels: { is: 'Hlutlaust', en: 'Neutral', es: 'Neutro' }, dots: ['#ece9e3', '#b8b1a6', '#736c61'],
+    vars: {
+      '--bg': '#efece6', '--bg-glow': '#f6f4ef', '--surface': '#fffdfa',
+      '--ink': '#34302a', '--soft': '#a39c90', '--accent': '#bcb4a7', '--accent-deep': '#6f685c',
+      '--line': '#e7e2d9', '--holiday-bg': '#ede9e1', '--badge': '#ece8e0', '--weekend': '#f5f2ec',
+      '--shadow': 'rgba(90,82,68,0.14)', '--entry-hover': '#f1eee7', '--floral': '#aaa291',
+    },
+  },
+  bloom: {
+    label: 'Blómableikt', labels: { is: 'Blómableikt', en: 'Bloom', es: 'Floral' }, dots: ['#ffe1ee', '#ff86bd', '#ed4a96'],
+    vars: {
+      '--bg': '#ffe6f2', '--bg-glow': '#fff2f8', '--surface': '#fffafc',
+      '--ink': '#6b2f4d', '--soft': '#d18bad', '--accent': '#ff86bd', '--accent-deep': '#e6438c',
+      '--line': '#ffd7e9', '--holiday-bg': '#ffdfee', '--badge': '#ffe3f0', '--weekend': '#fff1f7',
+      '--shadow': 'rgba(230,67,140,0.18)', '--entry-hover': '#ffeef6', '--floral': '#ffb3d4',
     },
   },
 };
@@ -1110,12 +1516,20 @@ function saveEntries(obj) {
 
 /* ---- recurring events (afmæli, tímamót) ---- */
 const EVENTS_STORE = 'edyCalendar.events.v1';
-const EVENT_TYPES = [
-  { id: 'afmaeli',  label: 'Afmæli',           color: '#cf7691' },
-  { id: 'timamot',  label: 'Brúðkaupsafmæli',  color: '#b89fd4' },
-  { id: 'annad',    label: 'Annað',            color: '#43b07f' },
+const TAGS_STORE = 'edyCalendar.tags.v1';
+const BIRTHDAY_TAG = 'afmaeli'; // special: shows "verður x ára"
+const DEFAULT_TAGS = [
+  { id: 'afmaeli', label: 'Afmæli',          color: '#cf7691' },
+  { id: 'timamot', label: 'Brúðkaupsafmæli', color: '#b89fd4' },
 ];
-const eventType = (id) => EVENT_TYPES.find((t) => t.id === id) || EVENT_TYPES[2];
+const TAG_COLORS = ['#43b07f', '#4f9ed9', '#e0913b', '#9a7bd0', '#e24c63', '#5fb3a8', '#d8b86a', '#d586a0'];
+function loadTags() {
+  try { const a = JSON.parse(localStorage.getItem(TAGS_STORE)); if (Array.isArray(a) && a.length) return a; }
+  catch (e) {}
+  return DEFAULT_TAGS.map((t) => ({ ...t }));
+}
+function saveTags(arr) { try { localStorage.setItem(TAGS_STORE, JSON.stringify(arr)); } catch (e) {} }
+const findTag = (tags, id) => tags.find((t) => t.id === id) || tags[0] || DEFAULT_TAGS[0];
 function loadEvents() {
   try { return (JSON.parse(localStorage.getItem(EVENTS_STORE)) || []).map((e) => ({
     id: e.id, title: e.title || '', month: e.month | 0, day: e.day | 0,
@@ -1134,11 +1548,11 @@ function nextOccurrence(month, day, from) {
 }
 function daysUntil(d, from) { return Math.round((midnight(d) - midnight(from)) / 86400000); }
 function countdownText(n) {
-  if (n === 0) return 'Í dag ✿';
-  if (n === 1) return 'Á morgun';
-  if (n < 7) return `Eftir ${n} daga`;
-  if (n < 14) return 'Í næstu viku';
-  return `Eftir ${n} daga`;
+  if (n === 0) return tr('cdToday');
+  if (n === 1) return tr('cdTomorrow');
+  if (n < 7) return L.s.cdInDays(n);
+  if (n < 14) return tr('cdNextWeek');
+  return L.s.cdInDays(n);
 }
 
 /* ---------------- florals ---------------- */
@@ -1204,7 +1618,7 @@ function EntryRow({ value, autoFocus, onText, onColor, onRemove, onEnter }) {
   return (
     <div className="entry">
       <div className="entry-color" ref={wrapRef}>
-        <button className="entry-color-btn" title="Litur á texta"
+        <button className="entry-color-btn" title={tr('textColor')}
           onClick={() => setPick((p) => !p)}>
           <span className="dot" style={{ background: value.color }} />
         </button>
@@ -1223,7 +1637,7 @@ function EntryRow({ value, autoFocus, onText, onColor, onRemove, onEnter }) {
         ref={ref}
         rows={1}
         value={value.text}
-        placeholder="Skrifaðu hér…"
+        placeholder={tr('writeHere')}
         style={{ color: value.color }}
         onChange={(e) => { onText(e.target.value); fit(); }}
         onKeyDown={(e) => {
@@ -1232,7 +1646,7 @@ function EntryRow({ value, autoFocus, onText, onColor, onRemove, onEnter }) {
         }}
         onBlur={() => { if (value.text.trim() === '') onRemove(); }}
       />
-      <button className="entry-del" title="Eyða" onClick={onRemove}>
+      <button className="entry-del" title={tr('delete')} onClick={onRemove}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
           <path d="M5 5l14 14M19 5L5 19" />
         </svg>
@@ -1264,7 +1678,7 @@ function DayCard({ date, isToday, picked, entries, holiday, onAdd, onText, onCol
         <div className="day-headtext">
           <div className="dow">
             {dow}
-            {isToday && <span className="today-tag">Í dag</span>}
+            {isToday && <span className="today-tag">{tr('today')}</span>}
           </div>
           {holiday && (
             <div className={'holiday-name' + (holiday.kind === 'special' ? ' special' : '')}>
@@ -1292,14 +1706,14 @@ function DayCard({ date, isToday, picked, entries, holiday, onAdd, onText, onCol
 
       <button className="add-entry" onClick={() => onAdd(dk)}>
         <span className="plus">+</span>
-        {list.length ? 'Bæta við' : 'Bæta við færslu'}
+        {list.length ? tr('addMore') : tr('addEntry')}
       </button>
     </div>
   );
 }
 
 /* ---------------- month view ---------------- */
-function MonthGrid({ anchor, today, entries, onPick }) {
+function MonthGrid({ anchor, today, entries, onPick, holidayFor }) {
   const y = anchor.getFullYear(), m = anchor.getMonth();
   const offset = (new Date(y, m, 1).getDay() + 6) % 7;
   const dim = new Date(y, m + 1, 0).getDate();
@@ -1313,7 +1727,7 @@ function MonthGrid({ anchor, today, entries, onPick }) {
       {cells.map((d) => {
         const dk = keyOf(d);
         const out = d.getMonth() !== m;
-        const hol = window.icelandicHolidayFor(dk);
+        const hol = holidayFor(dk);
         const isToday = sameDay(d, today);
         const has = entries[dk] && entries[dk].some((e) => e.text && e.text.trim());
         const cls = ['mcell'];
@@ -1332,7 +1746,7 @@ function MonthGrid({ anchor, today, entries, onPick }) {
   );
 }
 
-function MonthView({ anchor, today, entries, onPick }) {
+function MonthView({ anchor, today, entries, onPick, holidayFor }) {
   // Render the anchor month plus the following months so the user can simply
   // scroll down to browse ahead.
   const AHEAD = 13;
@@ -1349,24 +1763,44 @@ function MonthView({ anchor, today, entries, onPick }) {
               {cap(MONTHS[mo.getMonth()])} <span className="yr">{mo.getFullYear()}</span>
             </h2>
           )}
-          <MonthGrid anchor={mo} today={today} entries={entries} onPick={onPick} />
+          <MonthGrid anchor={mo} today={today} entries={entries} onPick={onPick} holidayFor={holidayFor} />
         </div>
       ))}
-      <p className="month-hint">Veldu dag til að opna vikuna ✿</p>
+      <p className="month-hint">{tr('monthHint')}</p>
     </div>
   );
 }
 
-/* ---------------- list view ---------------- */
-function ListView({ entries, onPick }) {
-  const keys = Object.keys(entries)
-    .filter((k) => entries[k] && entries[k].some((e) => e.text && e.text.trim()))
-    .sort();
+/* ---------------- list view (Yfirlit) ---------------- */
+function ageText(ev, occYear, tags) {
+  if (!ev.year) return null;
+  const yrs = occYear - ev.year;
+  if (yrs <= 0) return null;
+  return ev.type === BIRTHDAY_TAG ? L.s.ageBirthday(yrs) : L.s.ageOther(yrs);
+}
+// Built-in tag labels follow the app language; user-created tags keep their text.
+function tagLabel(tp) {
+  if (tp.id === 'afmaeli') return tr('tagBirthday');
+  if (tp.id === 'timamot') return tr('tagAnniv');
+  return tp.label;
+}
+
+function ListView({ entries, events, tags, today, onPick, holidayFor }) {
+  // events recur yearly → place each at its next occurrence date.
+  const evByDay = {};
+  events.forEach((e) => {
+    const n = nextOccurrence(e.month, e.day, today);
+    const k = keyOf(n);
+    (evByDay[k] = evByDay[k] || []).push({ ...e, occYear: n.getFullYear() });
+  });
+  const entryKeys = Object.keys(entries).filter((k) => entries[k] && entries[k].some((e) => e.text && e.text.trim()));
+  const keys = Array.from(new Set([...entryKeys, ...Object.keys(evByDay)])).sort();
+
   if (!keys.length) {
     return (
       <div className="list-empty">
         <div style={{ fontSize: 30, marginBottom: 12 }}>✿</div>
-        Engar færslur ennþá.<br />Skrifaðu eitthvað í vikunni þinni.
+        {tr('listEmpty1')}<br />{tr('listEmpty2')}
       </div>
     );
   }
@@ -1375,8 +1809,9 @@ function ListView({ entries, onPick }) {
       {keys.map((k) => {
         const [y, m, da] = k.split('-').map(Number);
         const d = new Date(y, m - 1, da);
-        const hol = window.icelandicHolidayFor(k);
-        const items = entries[k].filter((e) => e.text && e.text.trim());
+        const hol = holidayFor(k);
+        const items = (entries[k] || []).filter((e) => e.text && e.text.trim());
+        const evs = evByDay[k] || [];
         return (
           <button key={k} className="list-day" onClick={() => onPick(d)}>
             <div className="list-date">
@@ -1385,6 +1820,19 @@ function ListView({ entries, onPick }) {
               {hol && <span className="list-hol">{hol.name}</span>}
             </div>
             <div className="list-items">
+              {evs.map((e) => {
+                const tp = findTag(tags, e.type);
+                const age = ageText(e, e.occYear, tags);
+                return (
+                  <div key={e.id} className="list-item list-ev">
+                    <span className="b" style={{ background: tp.color }} />
+                    <span style={{ color: tp.color, fontWeight: 700 }}>{e.title}</span>
+                    <span className="list-evtag" style={{ color: tp.color, background: tp.color + '22' }}>
+                      {tagLabel(tp)}{age ? ' · ' + age : ''}
+                    </span>
+                  </div>
+                );
+              })}
               {items.map((e, i) => (
                 <div key={i} className="list-item">
                   <span className="b" style={{ background: e.color }} />
@@ -1399,25 +1847,50 @@ function ListView({ entries, onPick }) {
   );
 }
 
-/* ---------------- events view (afmæli & tímamót) ---------------- */
-function EventsView({ events, today, onAdd, onRemove }) {
+/* ---------------- events view (Viðburðir) ---------------- */
+function EventsView({ events, tags, today, onAdd, onUpdate, onRemove, onAddTag, onRemoveTag }) {
   const [open, setOpen] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [title, setTitle] = useState('');
   const [day, setDay] = useState(today.getDate());
   const [month, setMonth] = useState(today.getMonth());
   const [type, setType] = useState('afmaeli');
   const [hasYear, setHasYear] = useState(false);
   const [year, setYear] = useState(today.getFullYear());
+  const [addingTag, setAddingTag] = useState(false);
+  const [tagName, setTagName] = useState('');
 
   const dim = new Date(2024, month + 1, 0).getDate(); // leap year → allow 29 Feb
-  const reset = () => { setTitle(''); setDay(today.getDate()); setMonth(today.getMonth());
-    setType('afmaeli'); setHasYear(false); setYear(today.getFullYear()); };
+
+  const openAdd = () => {
+    setEditId(null); setTitle(''); setDay(today.getDate()); setMonth(today.getMonth());
+    setType('afmaeli'); setHasYear(false); setYear(today.getFullYear());
+    setAddingTag(false); setTagName(''); setOpen(true);
+  };
+  const openEdit = (e) => {
+    setEditId(e.id); setTitle(e.title); setDay(e.day); setMonth(e.month);
+    setType(tags.some((t) => t.id === e.type) ? e.type : (tags[0] && tags[0].id));
+    setHasYear(!!e.year); setYear(e.year || today.getFullYear());
+    setAddingTag(false); setTagName(''); setOpen(true);
+  };
+  const close = () => { setOpen(false); setAddingTag(false); setTagName(''); };
+
   const submit = () => {
     if (!title.trim()) return;
-    onAdd({ id: 'ev_' + Date.now(), title: title.trim(),
+    const data = { title: title.trim(),
       day: Math.min(day, new Date(2024, month + 1, 0).getDate()), month, type,
-      year: hasYear ? year : null });
-    reset(); setOpen(false);
+      year: hasYear ? year : null };
+    if (editId) onUpdate(editId, data);
+    else onAdd({ id: 'ev_' + Date.now(), ...data });
+    close();
+  };
+
+  const confirmTag = () => {
+    const name = tagName.trim();
+    if (!name) { setAddingTag(false); return; }
+    const tg = onAddTag(name);
+    if (tg) setType(tg.id);
+    setTagName(''); setAddingTag(false);
   };
 
   const sorted = [...events].map((e) => {
@@ -1429,17 +1902,36 @@ function EventsView({ events, today, onAdd, onRemove }) {
     <div className="ev-wrap">
       {open ? (
         <div className="ev-form">
-          <input className="ev-input" placeholder="Nafn eða tilefni…" value={title} autoFocus
+          <input className="ev-input" placeholder={tr('eventNamePh')} value={title} autoFocus
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') submit(); }} />
           <div className="ev-types">
-            {EVENT_TYPES.map((tp) => (
-              <button key={tp.id} className={'ev-typebtn' + (type === tp.id ? ' on' : '')}
-                style={type === tp.id ? { borderColor: tp.color, color: tp.color } : null}
-                onClick={() => setType(tp.id)}>
-                <span className="ev-dot" style={{ background: tp.color }} />{tp.label}
-              </button>
-            ))}
+            {tags.map((tp) => {
+              const builtin = DEFAULT_TAGS.some((d) => d.id === tp.id);
+              return (
+                <span key={tp.id} className="ev-tagchip-wrap">
+                  <button className={'ev-typebtn' + (type === tp.id ? ' on' : '')}
+                    style={type === tp.id ? { borderColor: tp.color, color: tp.color } : null}
+                    onClick={() => setType(tp.id)}>
+                    <span className="ev-dot" style={{ background: tp.color }} />{tagLabel(tp)}
+                  </button>
+                  {!builtin && (
+                    <button className="ev-tagdel" title={tr('delTag')}
+                      onClick={() => { onRemoveTag(tp.id); if (type === tp.id) setType('afmaeli'); }}>×</button>
+                  )}
+                </span>
+              );
+            })}
+            {addingTag ? (
+              <span className="ev-newtag">
+                <input className="ev-newtag-in" placeholder={tr('newTagPh')} value={tagName} autoFocus
+                  onChange={(e) => setTagName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') confirmTag(); if (e.key === 'Escape') { setAddingTag(false); setTagName(''); } }} />
+                <button className="ev-newtag-ok" onClick={confirmTag}>✓</button>
+              </span>
+            ) : (
+              <button className="ev-typebtn ev-typenew" onClick={() => setAddingTag(true)}>{tr('newTag')}</button>
+            )}
           </div>
           <div className="ev-daterow">
             <select className="ev-select" value={day} onChange={(e) => setDay(+e.target.value)}>
@@ -1452,37 +1944,41 @@ function EventsView({ events, today, onAdd, onRemove }) {
           </div>
           <label className="ev-yearrow">
             <input type="checkbox" checked={hasYear} onChange={(e) => setHasYear(e.target.checked)} />
-            <span>Telja ár frá</span>
+            <span>{tr('countYearsFrom')}</span>
             {hasYear && (
               <input className="ev-year" type="number" value={year}
                 onChange={(e) => setYear(+e.target.value)} />
             )}
           </label>
           <div className="ev-actions">
-            <button className="ev-cancel" onClick={() => { reset(); setOpen(false); }}>Hætta við</button>
-            <button className="ev-save" onClick={submit}>Vista viðburð</button>
+            {editId && (
+              <button className="ev-delbig" onClick={() => { onRemove(editId); close(); }}>{tr('delete')}</button>
+            )}
+            <button className="ev-cancel" onClick={close}>{tr('cancel')}</button>
+            <button className="ev-save" onClick={submit}>{editId ? tr('saveChanges') : tr('saveEvent')}</button>
           </div>
         </div>
       ) : (
-        <button className="ev-addbtn" onClick={() => setOpen(true)}>
-          <span className="ev-plus">+</span> Bæta við viðburði
+        <button className="ev-addbtn" onClick={openAdd}>
+          <span className="ev-plus">+</span> {tr('addEvent')}
         </button>
       )}
 
       {sorted.length === 0 && !open && (
         <div className="list-empty">
           <div style={{ fontSize: 30, marginBottom: 12 }}>♡</div>
-          Engir viðburðir ennþá.<br />Bættu við afmælum og tímamótum.
+          {tr('eventsEmpty1')}<br />{tr('eventsEmpty2')}
         </div>
       )}
 
       <div className="ev-list">
         {sorted.map((e) => {
-          const tp = eventType(e.type);
-          const turning = e.year ? (e.next.getFullYear() - e.year) : null;
+          const tp = findTag(tags, e.type);
+          const age = ageText(e, e.next.getFullYear(), tags);
           const soon = e.days <= 7;
           return (
-            <div key={e.id} className={'ev-card' + (soon ? ' soon' : '')}>
+            <div key={e.id} className={'ev-card' + (soon ? ' soon' : '')}
+              onClick={() => openEdit(e)} role="button" tabIndex={0}>
               <div className="ev-badge" style={{ background: tp.color }}>
                 <span className="ev-bd-day">{e.day}</span>
                 <span className="ev-bd-mon">{MONTHS_SHORT[e.month]}</span>
@@ -1491,18 +1987,14 @@ function EventsView({ events, today, onAdd, onRemove }) {
                 <div className="ev-title">{e.title}</div>
                 <div className="ev-meta">
                   <span className="ev-typechip" style={{ color: tp.color }}>
-                    <span className="ev-dot" style={{ background: tp.color }} />{tp.label}
+                    <span className="ev-dot" style={{ background: tp.color }} />{tagLabel(tp)}
                   </span>
-                  {turning != null && turning > 0 && (
-                    <span className="ev-turns">verður {turning} ára</span>
-                  )}
+                  {age && <span className="ev-turns">{age}</span>}
                 </div>
               </div>
               <div className="ev-right">
                 <span className={'ev-count' + (e.days === 0 ? ' now' : '')}>{countdownText(e.days)}</span>
-                <button className="ev-del" title="Eyða" onClick={() => onRemove(e.id)}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M5 5l14 14M19 5L5 19" /></svg>
-                </button>
+                <span className="ev-edit">{tr('edit')}</span>
               </div>
             </div>
           );
@@ -1512,7 +2004,140 @@ function EventsView({ events, today, onAdd, onRemove }) {
   );
 }
 
-/* ---------------- tweaks defaults ---------------- */
+/* ---------------- user settings (persisted) ---------------- */
+const SETTINGS_STORE = 'edyCalendar.settings.v1';
+const DEFAULT_SETTINGS = { lang: 'is', country: 'IS', theme: 'blush', headingFont: 'Comfortaa', florals: true };
+function loadSettings() {
+  try { return { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem(SETTINGS_STORE)) || {}) }; }
+  catch (e) { return { ...DEFAULT_SETTINGS }; }
+}
+function saveSettings(s) { try { localStorage.setItem(SETTINGS_STORE, JSON.stringify(s)); } catch (e) {} }
+
+/* ---------------- settings modal ---------------- */
+const GearIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3.2" />
+    <path d="M19.4 13a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+  </svg>
+);
+const Tick = () => (
+  <svg viewBox="0 0 14 14" fill="none" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 7.4 5.7 10 11 4.2" />
+  </svg>
+);
+// simple striped flag marks (purely decorative aid)
+function CountryFlag({ id }) {
+  const rows = {
+    IS: ['#02529c', '#ffffff', '#dc1e35', '#ffffff', '#02529c'],
+    US: ['#b22234', '#ffffff', '#b22234', '#ffffff', '#3c3b6e'],
+    ES: ['#aa151b', '#f1bf00', '#f1bf00', '#f1bf00', '#aa151b'],
+  };
+  const r = rows[id] || rows.IS;
+  return (
+    <span className="opt-flag" aria-hidden="true">
+      {r.map((c, i) => <i key={i}><b style={{ background: c }} /></i>)}
+    </span>
+  );
+}
+
+function SettingsModal({ settings, onChange, onClose }) {
+  const lang = settings.lang;
+  const stop = (e) => e.stopPropagation();
+  return (
+    <div className="set-overlay" onClick={onClose}>
+      <div className="set-sheet" onClick={stop} role="dialog" aria-modal="true">
+        <div className="set-grab" />
+        <div className="set-head">
+          <h2 className="set-title">{tr('settings')}</h2>
+          <button className="set-close" aria-label={tr('close')} onClick={onClose}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M5 5l14 14M19 5L5 19" /></svg>
+          </button>
+        </div>
+
+        {/* Theme */}
+        <div className="set-sect">
+          <p className="set-label">{tr('theme')}</p>
+          <div className="theme-grid">
+            {Object.keys(PALETTES).map((key) => {
+              const p = PALETTES[key];
+              const on = settings.theme === key;
+              const v = p.vars;
+              const strip = [v['--surface'], v['--accent'], v['--accent-deep'], v['--ink']];
+              return (
+                <button key={key} className={'theme-card' + (on ? ' on' : '')} onClick={() => onChange('theme', key)}>
+                  <span className="theme-sw">{strip.map((c, i) => <span key={i} style={{ background: c }} />)}</span>
+                  <span className="theme-name">
+                    {(p.labels && p.labels[lang]) || p.label}
+                    {on && <span className="theme-tick"><Tick /></span>}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Language */}
+        <div className="set-sect">
+          <p className="set-label">{tr('language')}</p>
+          <div className="opt-list">
+            {window.EdyI18n.langs.map((lg) => {
+              const on = settings.lang === lg.id;
+              return (
+                <button key={lg.id} className={'opt-row' + (on ? ' on' : '')} onClick={() => onChange('lang', lg.id)}>
+                  <span className="opt-main"><span className="opt-name">{lg.native}</span></span>
+                  <span className="opt-check"><Tick /></span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Country */}
+        <div className="set-sect">
+          <p className="set-label">{tr('country')}</p>
+          <div className="opt-list">
+            {window.EdyI18n.countries.map((co) => {
+              const on = settings.country === co.id;
+              return (
+                <button key={co.id} className={'opt-row' + (on ? ' on' : '')} onClick={() => onChange('country', co.id)}>
+                  <CountryFlag id={co.id} />
+                  <span className="opt-main">
+                    <span className="opt-name">{co.label[lang]}</span>
+                    {on && <span className="opt-sub">{tr('countryNote')}</span>}
+                  </span>
+                  <span className="opt-check"><Tick /></span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Appearance extras */}
+        <div className="set-sect">
+          <p className="set-label">{tr('appearance')}</p>
+          <div className="set-toggle-row">
+            <span className="set-toggle-txt">{tr('florals')}</span>
+            <button className="set-switch" data-on={settings.florals ? '1' : '0'}
+              role="switch" aria-checked={settings.florals}
+              onClick={() => onChange('florals', !settings.florals)}><i /></button>
+          </div>
+          <div style={{ paddingTop: 14 }}>
+            <span className="set-toggle-txt" style={{ display: 'block', marginBottom: 9 }}>{tr('headingFont')}</span>
+            <div className="set-seg">
+              {['Comfortaa', 'Quicksand'].map((f) => (
+                <button key={f} className={settings.headingFont === f ? 'on' : ''}
+                  style={{ fontFamily: FONTS[f] }}
+                  onClick={() => onChange('headingFont', f)}>{f}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* keep the EDITMODE block so the Tweaks toolbar still has values to read */
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "palette": "blush",
   "headingFont": "Comfortaa",
@@ -1521,29 +2146,39 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 /* ---------------- app ---------------- */
 function App() {
-  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [settings, setSettings] = useState(loadSettings);
+  const updateSetting = (k, v) => setSettings((prev) => ({ ...prev, [k]: v }));
+  const [showSettings, setShowSettings] = useState(false);
+  // Apply the chosen language for THIS render — render is synchronous top-down,
+  // so child components below read the freshly-set locale arrays.
+  applyLang(settings.lang);
   const today = new Date();
-  const [view, setView] = useState('list');
+  const [view, setView] = useState('week');
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [monthAnchor, setMonthAnchor] = useState(() => startOfMonth(new Date()));
   const [entries, setEntries] = useState(loadEntries);
   const [events, setEvents] = useState(loadEvents);
+  const [tags, setTags] = useState(loadTags);
   const [focusKey, setFocusKey] = useState(null);
   const [picked, setPicked] = useState(null);
 
   useEffect(() => { saveEntries(entries); }, [entries]);
   useEffect(() => { saveEvents(events); }, [events]);
+  useEffect(() => { saveTags(tags); }, [tags]);
+  useEffect(() => { saveSettings(settings); }, [settings]);
   useEffect(() => {
     if (!picked) return;
     const id = setTimeout(() => setPicked(null), 1900);
     return () => clearTimeout(id);
   }, [picked]);
 
-  const pal = PALETTES[t.palette] || PALETTES.blush;
-  const rootVars = { ...pal.vars, '--heading-font': FONTS[t.headingFont] || FONTS.Comfortaa };
+  const pal = PALETTES[settings.theme] || PALETTES.blush;
+  const rootVars = { ...pal.vars, '--heading-font': FONTS[settings.headingFont] || FONTS.Comfortaa };
   useEffect(() => {
-    document.documentElement.style.setProperty('--heading-font', FONTS[t.headingFont] || FONTS.Comfortaa);
-  }, [t.headingFont]);
+    document.documentElement.style.setProperty('--heading-font', FONTS[settings.headingFont] || FONTS.Comfortaa);
+  }, [settings.headingFont]);
+  // holidays follow the selected country, named in the selected language
+  const holidayFor = (dk) => window.EdyHolidays.lookup(settings.country, settings.lang, dk);
 
   const days = [];
   for (let i = 0; i < 7; i++) days.push(addDays(weekStart, i));
@@ -1581,15 +2216,24 @@ function App() {
   const toList = () => setView('list');
   const toEvents = () => setView('events');
   const addEvent = (ev) => setEvents((prev) => [...prev, ev]);
+  const updateEvent = (id, data) => setEvents((prev) => prev.map((e) => e.id === id ? { ...e, ...data } : e));
   const removeEvent = (id) => setEvents((prev) => prev.filter((e) => e.id !== id));
+  const addTag = (label) => {
+    const id = 'tag_' + Date.now();
+    const color = TAG_COLORS[tags.filter((t) => !DEFAULT_TAGS.some((d) => d.id === t.id)).length % TAG_COLORS.length];
+    const tg = { id, label, color };
+    setTags((prev) => [...prev, tg]);
+    return tg;
+  };
+  const removeTag = (id) => setTags((prev) => prev.filter((t) => t.id !== id));
   const pickDay = (d) => { setWeekStart(startOfWeek(d)); setPicked(keyOf(d)); setView('week'); };
   const goToday = () => {
     setWeekStart(startOfWeek(new Date()));
     setMonthAnchor(startOfMonth(new Date()));
   };
 
-  const KICKERS = { week: 'Vikudagatal', month: 'Mánaðardagatal', list: 'Yfirlit færslna', events: 'Afmæli & tímamót' };
-  const titleMain = view === 'list' ? 'Yfirlit' : view === 'events' ? 'Viðburðir'
+  const KICKERS = { week: tr('weekKicker'), month: tr('monthKicker'), list: tr('listKicker'), events: tr('eventsKicker') };
+  const titleMain = view === 'list' ? tr('listTitle') : view === 'events' ? tr('eventsTitle')
     : (view === 'week' ? cap(MONTHS[mid.getMonth()]) : cap(MONTHS[monthAnchor.getMonth()]));
   const titleYear = view === 'week' ? mid.getFullYear() : monthAnchor.getFullYear();
   const showYear = view === 'week' || view === 'month';
@@ -1599,7 +2243,10 @@ function App() {
 
   return (
     <div className="page" style={rootVars}>
-      {t.florals && <Florals />}
+      <button className="gear-btn" aria-label={tr('settingsAria')} onClick={() => setShowSettings(true)}>
+        <GearIcon />
+      </button>
+      {settings.florals && <Florals />}
       <div className="shell">
         <header className="cal-head">
           <p className="kicker"><span>{KICKERS[view]}</span></p>
@@ -1609,10 +2256,10 @@ function App() {
             </h1>
             {hasNav && (
               <div className="nav">
-                <button className="nav-btn" aria-label="Til baka" onClick={() => go(-1)}>
+                <button className="nav-btn" aria-label={tr('back')} onClick={() => go(-1)}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
                 </button>
-                <button className="nav-btn" aria-label="Áfram" onClick={() => go(1)}>
+                <button className="nav-btn" aria-label={tr('forward')} onClick={() => go(1)}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7" /></svg>
                 </button>
               </div>
@@ -1620,13 +2267,13 @@ function App() {
           </div>
           <div className="subrow">
             <div className="viewseg">
-              <button className={view === 'list' ? 'on' : ''} onClick={toList}>Yfirlit</button>
-              <button className={view === 'week' ? 'on' : ''} onClick={toWeek}>Vika</button>
-              <button className={view === 'month' ? 'on' : ''} onClick={toMonth}>Mánuður</button>
-              <button className={view === 'events' ? 'on' : ''} onClick={toEvents}>Viðburðir</button>
+              <button className={view === 'week' ? 'on' : ''} onClick={toWeek}>{tr('segWeek')}</button>
+              <button className={view === 'month' ? 'on' : ''} onClick={toMonth}>{tr('segMonth')}</button>
+              <button className={view === 'list' ? 'on' : ''} onClick={toList}>{tr('segList')}</button>
+              <button className={view === 'events' ? 'on' : ''} onClick={toEvents}>{tr('segEvents')}</button>
             </div>
             {hasNav && (
-              <button className={'today-btn' + (isCur ? ' is-current' : '')} onClick={goToday}>Í dag</button>
+              <button className={'today-btn' + (isCur ? ' is-current' : '')} onClick={goToday}>{tr('today')}</button>
             )}
           </div>
           {view === 'week' && <div className="week-cap">{rangeText}</div>}
@@ -1641,7 +2288,7 @@ function App() {
                 isToday={sameDay(d, today)}
                 picked={picked === keyOf(d)}
                 entries={entries[keyOf(d)]}
-                holiday={window.icelandicHolidayFor(keyOf(d))}
+                holiday={holidayFor(keyOf(d))}
                 focusKey={focusKey}
                 onAdd={addEntry}
                 onText={setText}
@@ -1652,47 +2299,60 @@ function App() {
           </div>
         )}
         {view === 'month' && (
-          <MonthView anchor={monthAnchor} today={today} entries={entries} onPick={pickDay} />
+          <MonthView anchor={monthAnchor} today={today} entries={entries} onPick={pickDay} holidayFor={holidayFor} />
         )}
         {view === 'list' && (
-          <ListView entries={entries} onPick={pickDay} />
+          <ListView entries={entries} events={events} tags={tags} today={today} onPick={pickDay} holidayFor={holidayFor} />
         )}
         {view === 'events' && (
-          <EventsView events={events} today={today} onAdd={addEvent} onRemove={removeEvent} />
+          <EventsView events={events} tags={tags} today={today}
+            onAdd={addEvent} onUpdate={updateEvent} onRemove={removeEvent}
+            onAddTag={addTag} onRemoveTag={removeTag} />
         )}
 
-        {view === 'week' && <p className="footer-note">Færslur vistast sjálfkrafa á þessu tæki ♡</p>}
-        {view === 'list' && <p className="footer-note">Þú ert frábær og stendur þig vel ♡</p>}
-        {view === 'events' && <p className="footer-note">Gleymdu aldrei stóru stundunum ♡</p>}
+        {view === 'week' && <p className="footer-note">{tr('footerWeek')}</p>}
+        {view === 'list' && <p className="footer-note">{tr('footerList')}</p>}
+        {view === 'events' && <p className="footer-note">{tr('footerEvents')}</p>}
       </div>
 
+      {showSettings && (
+        <SettingsModal settings={settings} onChange={updateSetting} onClose={() => setShowSettings(false)} />
+      )}
+
       <TweaksPanel>
-        <TweakSection label="Litir" />
+        <TweakSection label="Þema" />
         <div style={{ display: 'flex', gap: 10, padding: '4px 2px 8px', flexWrap: 'wrap' }}>
           {Object.keys(PALETTES).map((key) => {
             const p = PALETTES[key];
-            const active = t.palette === key;
+            const active = settings.theme === key;
             return (
-              <button key={key} onClick={() => setTweak('palette', key)} title={p.label}
+              <button key={key} onClick={() => updateSetting('theme', key)} title={p.label}
                 style={{
                   cursor: 'pointer', border: active ? '2px solid #333' : '2px solid transparent',
                   background: '#fff', borderRadius: 12, padding: 5, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', gap: 5, boxShadow: '0 1px 4px rgba(0,0,0,.1)', flex: '1 1 64px',
+                  alignItems: 'center', gap: 5, boxShadow: '0 1px 4px rgba(0,0,0,.1)', flex: '1 1 60px',
                 }}>
                 <span style={{ display: 'flex', borderRadius: 8, overflow: 'hidden' }}>
-                  {p.dots.map((c, i) => <span key={i} style={{ width: 18, height: 26, background: c }} />)}
+                  {p.dots.map((c, i) => <span key={i} style={{ width: 16, height: 24, background: c }} />)}
                 </span>
-                <span style={{ fontSize: 10.5, fontWeight: 600, color: '#444' }}>{p.label}</span>
+                <span style={{ fontSize: 10, fontWeight: 600, color: '#444' }}>{p.label}</span>
               </button>
             );
           })}
         </div>
+        <TweakSection label="Tungumál & land" />
+        <TweakRadio label="Tungumál" value={settings.lang}
+          options={window.EdyI18n.langs.map((l) => ({ value: l.id, label: l.id.toUpperCase() }))}
+          onChange={(v) => updateSetting('lang', v)} />
+        <TweakSelect label="Land" value={settings.country}
+          options={window.EdyI18n.countries.map((c) => ({ value: c.id, label: c.label.en }))}
+          onChange={(v) => updateSetting('country', v)} />
         <TweakSection label="Letur & skraut" />
-        <TweakRadio label="Fyrirsögn" value={t.headingFont}
+        <TweakRadio label="Fyrirsögn" value={settings.headingFont}
           options={['Comfortaa', 'Quicksand']}
-          onChange={(v) => setTweak('headingFont', v)} />
-        <TweakToggle label="Blómaskraut" value={t.florals}
-          onChange={(v) => setTweak('florals', v)} />
+          onChange={(v) => updateSetting('headingFont', v)} />
+        <TweakToggle label="Blómaskraut" value={settings.florals}
+          onChange={(v) => updateSetting('florals', v)} />
       </TweaksPanel>
     </div>
   );
