@@ -502,6 +502,48 @@
   .set-seg button.on { background: var(--surface); color: var(--accent-deep);
     box-shadow: 0 2px 8px var(--shadow); }
 
+  /* ---- events inside week-view day cards ---- */
+  .day-events { margin-top: 9px; display: flex; flex-direction: column; gap: 4px; }
+  .day-ev { display: flex; align-items: center; gap: 8px; padding: 2px 2px; flex-wrap: wrap; }
+  .day-ev-dot { flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%; }
+  .day-ev-title { font-family: var(--heading-font), sans-serif; font-weight: 700; font-size: 14.5px; }
+  .day-ev-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+
+  /* ---- month-grid dots (entries + events) ---- */
+  .mcell .mdots { position: absolute; bottom: 7px; left: 0; right: 0;
+    display: flex; gap: 3px; justify-content: center; }
+  .mcell .mdots .ev { position: static; }
+  .mcell .ev.evt { background: var(--accent); }
+
+  /* ---- tag colour picker in event form ---- */
+  .ev-tagcolors { display: flex; flex-direction: column; gap: 8px; }
+  .ev-tagcolors-lbl { font-family: var(--heading-font), sans-serif; font-weight: 600;
+    font-size: 13px; color: var(--soft); }
+  .ev-sw-row { display: flex; gap: 9px; flex-wrap: wrap; }
+  .ev-sw { appearance: none; width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid transparent; cursor: pointer; padding: 0;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.12); transition: transform .12s ease; }
+  .ev-sw:hover { transform: scale(1.12); }
+  .ev-sw.sel { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent-deep); }
+  .ev-yearsel { flex: 0 0 auto; padding-top: 8px; padding-bottom: 8px; }
+
+  /* ---- decoration picker ---- */
+  .deco-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .deco-card { appearance: none; cursor: pointer; position: relative;
+    border: 1.5px solid var(--line); background: var(--surface); border-radius: 16px;
+    padding: 13px 8px 11px; display: flex; flex-direction: column; align-items: center; gap: 7px;
+    box-shadow: 0 3px 11px var(--shadow);
+    transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease, background .14s ease; }
+  .deco-card:hover { box-shadow: 0 7px 16px var(--shadow); transform: translateY(-1px); }
+  .deco-card.on { border-color: var(--accent-deep); background: var(--holiday-bg); }
+  .deco-ico { width: 38px; height: 38px; border-radius: 12px; background: var(--badge);
+    display: grid; place-items: center; }
+  .deco-name { font-family: var(--heading-font), 'Quicksand', sans-serif; font-weight: 600;
+    font-size: 12.5px; color: var(--ink); }
+  .deco-tick { position: absolute; top: 7px; right: 7px; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent-deep); display: grid; place-items: center; }
+  .deco-tick svg { width: 9px; height: 9px; stroke: #fff; }
+
   @media (max-width: 380px) {
     .month-title { font-size: 27px; }
     .shell { padding-left: 14px; padding-right: 14px; }
@@ -583,6 +625,8 @@ window.EdyI18n = (function () {
       settings: 'Stillingar', theme: 'Þema', language: 'Tungumál', country: 'Land',
       appearance: 'Útlit', florals: 'Blómaskraut', headingFont: 'Fyrirsagnaletur',
       countryNote: 'Stýrir frídögum í dagatalinu', close: 'Loka', settingsAria: 'Stillingar',
+      decoration: 'Skraut', tagColor: 'Litur á merki',
+      decoNone: 'Ekkert', decoFlowers: 'Blóm', decoStars: 'Stjörnur', decoHearts: 'Hjörtu', decoLeaves: 'Lauf',
     },
     en: {
       weekKicker: 'Weekly planner', monthKicker: 'Monthly calendar',
@@ -609,6 +653,8 @@ window.EdyI18n = (function () {
       settings: 'Settings', theme: 'Theme', language: 'Language', country: 'Country',
       appearance: 'Appearance', florals: 'Floral decoration', headingFont: 'Heading font',
       countryNote: 'Sets which public holidays appear', close: 'Done', settingsAria: 'Settings',
+      decoration: 'Decoration', tagColor: 'Tag colour',
+      decoNone: 'None', decoFlowers: 'Flowers', decoStars: 'Stars', decoHearts: 'Hearts', decoLeaves: 'Leaves',
     },
     es: {
       weekKicker: 'Agenda semanal', monthKicker: 'Calendario mensual',
@@ -635,6 +681,8 @@ window.EdyI18n = (function () {
       settings: 'Ajustes', theme: 'Tema', language: 'Idioma', country: 'País',
       appearance: 'Apariencia', florals: 'Decoración floral', headingFont: 'Tipografía de títulos',
       countryNote: 'Define qué días festivos aparecen', close: 'Listo', settingsAria: 'Ajustes',
+      decoration: 'Decoración', tagColor: 'Color de etiqueta',
+      decoNone: 'Ninguna', decoFlowers: 'Flores', decoStars: 'Estrellas', decoHearts: 'Corazones', decoLeaves: 'Hojas',
     },
   };
 
@@ -1463,6 +1511,33 @@ const PALETTES = {
       '--shadow': 'rgba(230,67,140,0.18)', '--entry-hover': '#ffeef6', '--floral': '#ffb3d4',
     },
   },
+  rainbow: {
+    label: 'Regnbogi', labels: { is: 'Regnbogi', en: 'Rainbow', es: 'Arcoíris' }, dots: ['#ff6b6b', '#ffd23f', '#4ec9b0'],
+    vars: {
+      '--bg': '#fbf2f7', '--bg-glow': '#fff2fa', '--surface': '#fffbff',
+      '--ink': '#4a3a5c', '--soft': '#ad94bb', '--accent': '#f06fb0', '--accent-deep': '#9b4fd6',
+      '--line': '#f3ddef', '--holiday-bg': '#fde6f5', '--badge': '#f7e7f7', '--weekend': '#fef5fb',
+      '--shadow': 'rgba(155,79,214,0.16)', '--entry-hover': '#fcebf8', '--floral': '#f0a6cf',
+    },
+  },
+  space: {
+    label: 'Geimur', labels: { is: 'Geimur', en: 'Space', es: 'Espacio' }, dots: ['#201c38', '#9a8bf5', '#6f5ce6'],
+    vars: {
+      '--bg': '#141226', '--bg-glow': '#2b2350', '--surface': '#201c38',
+      '--ink': '#eceafb', '--soft': '#9389b8', '--accent': '#9a8bf5', '--accent-deep': '#7a68ee',
+      '--line': '#2f2a4d', '--holiday-bg': '#272150', '--badge': '#2a2548', '--weekend': '#1b1832',
+      '--shadow': 'rgba(0,0,0,0.45)', '--entry-hover': '#2a2548', '--floral': '#6a5fa0',
+    },
+  },
+  luxury: {
+    label: 'Lúxus', labels: { is: 'Lúxus', en: 'Luxury', es: 'Lujo' }, dots: ['#201b13', '#dcbf72', '#b1893a'],
+    vars: {
+      '--bg': '#161310', '--bg-glow': '#2c2518', '--surface': '#201b13',
+      '--ink': '#f1e9d6', '--soft': '#b09c78', '--accent': '#dcbf72', '--accent-deep': '#c39a45',
+      '--line': '#342c1d', '--holiday-bg': '#2b2316', '--badge': '#2a2215', '--weekend': '#1d180f',
+      '--shadow': 'rgba(0,0,0,0.5)', '--entry-hover': '#2a2215', '--floral': '#8a7038',
+    },
+  },
 };
 
 const FONTS = {
@@ -1474,12 +1549,12 @@ const FONTS = {
 const TEXT_COLORS = [
   { name: 'Rautt',       value: '#e24c63' },
   { name: 'Fjólublátt',  value: '#b89fd4' },
-  { name: 'Svart',       value: '#2a2530' },
+  { name: 'Sjálfgefið',  value: 'var(--ink)' },
   { name: 'Blátt',       value: '#4f9ed9' },
   { name: 'Neonbleikt',  value: '#fb44a2' },
   { name: 'Grænt',       value: '#43b07f' },
 ];
-const DEFAULT_COLOR = '#2a2530';
+const DEFAULT_COLOR = 'var(--ink)';
 
 /* ---------------- date helpers ---------------- */
 function pad(n) { return String(n).padStart(2, '0'); }
@@ -1523,6 +1598,8 @@ const DEFAULT_TAGS = [
   { id: 'timamot', label: 'Brúðkaupsafmæli', color: '#b89fd4' },
 ];
 const TAG_COLORS = ['#43b07f', '#4f9ed9', '#e0913b', '#9a7bd0', '#e24c63', '#5fb3a8', '#d8b86a', '#d586a0'];
+// swatches offered when picking a tag's colour
+const TAG_COLOR_OPTIONS = ['#cf7691', '#e24c63', '#e0913b', '#d8b86a', '#43b07f', '#5fb3a8', '#4f9ed9', '#9a7bd0', '#b89fd4', '#d586a0', '#7a68ee', '#6f685c'];
 function loadTags() {
   try { const a = JSON.parse(localStorage.getItem(TAGS_STORE)); if (Array.isArray(a) && a.length) return a; }
   catch (e) {}
@@ -1597,6 +1674,155 @@ function Florals() {
   );
 }
 
+/* ---- alternative decorations ---- */
+// 4-point sparkle star
+function Spark({ cx, cy, s = 1, deep }) {
+  const r = 13 * s, w = 3.4 * s;
+  return (
+    <path
+      d={`M${cx} ${cy - r} C${cx + w} ${cy - w} ${cx + w} ${cy - w} ${cx + r} ${cy} C${cx + w} ${cy + w} ${cx + w} ${cy + w} ${cx} ${cy + r} C${cx - w} ${cy + w} ${cx - w} ${cy + w} ${cx - r} ${cy} C${cx - w} ${cy - w} ${cx - w} ${cy - w} ${cx} ${cy - r} Z`}
+      fill={deep ? 'var(--accent-deep)' : 'var(--accent)'} />
+  );
+}
+function StarCluster({ className, flip }) {
+  return (
+    <svg className={className} viewBox="0 0 200 240" fill="none" style={flip ? { transform: 'scaleX(-1)' } : null}>
+      <g stroke="var(--floral)" strokeWidth="1.6" strokeLinecap="round">
+        <circle cx="150" cy="38" r="1.8" fill="var(--floral)" />
+        <circle cx="108" cy="96" r="1.6" fill="var(--floral)" />
+        <circle cx="176" cy="120" r="1.6" fill="var(--floral)" />
+        <circle cx="70" cy="168" r="1.8" fill="var(--floral)" />
+        <circle cx="130" cy="150" r="1.4" fill="var(--floral)" />
+        <path d="M150 38 L108 96 M176 120 L130 150 M70 168 L130 150" strokeOpacity="0.32" />
+      </g>
+      <Spark cx={150} cy={26} s={1.25} deep />
+      <Spark cx={100} cy={92} s={0.9} />
+      <Spark cx={184} cy={132} s={0.8} deep />
+      <Spark cx={62} cy={186} s={1.1} />
+      <Spark cx={128} cy={196} s={0.7} />
+    </svg>
+  );
+}
+function StarsDecor() {
+  return (
+    <div className="florals" aria-hidden="true">
+      <StarCluster className="sprig-tr" />
+      <StarCluster className="sprig-bl" flip />
+    </div>
+  );
+}
+
+function Heart({ cx, cy, s = 1, deep }) {
+  const u = 9 * s;
+  return (
+    <path
+      d={`M${cx} ${cy + u * 1.25} C${cx - u * 1.7} ${cy + u * 0.1} ${cx - u * 1.7} ${cy - u} ${cx - u * 0.55} ${cy - u} C${cx - u * 0.18} ${cy - u} ${cx} ${cy - u * 0.5} ${cx} ${cy - u * 0.18} C${cx} ${cy - u * 0.5} ${cx + u * 0.18} ${cy - u} ${cx + u * 0.55} ${cy - u} C${cx + u * 1.7} ${cy - u} ${cx + u * 1.7} ${cy + u * 0.1} ${cx} ${cy + u * 1.25} Z`}
+      fill={deep ? 'var(--accent-deep)' : 'var(--accent)'} />
+  );
+}
+function HeartCluster({ className, flip }) {
+  return (
+    <svg className={className} viewBox="0 0 200 240" fill="none" style={flip ? { transform: 'scaleX(-1)' } : null}>
+      <g stroke="var(--floral)" strokeWidth="2" strokeLinecap="round" fill="none">
+        <path d="M150 30 C138 70 120 96 124 150 C126 184 118 210 98 230" strokeOpacity="0.5" />
+        <path d="M124 96 C100 92 82 102 72 124" strokeOpacity="0.5" />
+      </g>
+      <Heart cx={150} cy={28} s={1.5} deep />
+      <Heart cx={70} cy={120} s={1.05} />
+      <Heart cx={180} cy={150} s={0.9} deep />
+      <Heart cx={96} cy={196} s={1.2} />
+    </svg>
+  );
+}
+function HeartsDecor() {
+  return (
+    <div className="florals" aria-hidden="true">
+      <HeartCluster className="sprig-tr" />
+      <HeartCluster className="sprig-bl" flip />
+    </div>
+  );
+}
+
+function Leaf({ cx, cy, a = 0, s = 1 }) {
+  return (
+    <path transform={`rotate(${a} ${cx} ${cy})`}
+      d={`M${cx} ${cy} C${cx - 11 * s} ${cy - 7 * s} ${cx - 11 * s} ${cy - 23 * s} ${cx} ${cy - 30 * s} C${cx + 11 * s} ${cy - 23 * s} ${cx + 11 * s} ${cy - 7 * s} ${cx} ${cy} Z`}
+      fill="var(--accent)" fillOpacity="0.92" />
+  );
+}
+function LeafSprig({ className, flip }) {
+  return (
+    <svg className={className} viewBox="0 0 200 240" fill="none" style={flip ? { transform: 'scaleX(-1)' } : null}>
+      <path d="M150 6 C120 50 112 92 120 150 C124 184 116 212 96 232"
+        stroke="var(--floral)" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      <Leaf cx={134} cy={64} a={48} s={1.05} />
+      <Leaf cx={120} cy={58} a={-44} s={1.05} />
+      <Leaf cx={138} cy={108} a={58} s={0.95} />
+      <Leaf cx={120} cy={104} a={-40} s={0.9} />
+      <Leaf cx={126} cy={156} a={66} s={1} />
+      <Leaf cx={108} cy={158} a={-30} s={0.85} />
+      <Leaf cx={150} cy={20} a={20} s={1.15} />
+    </svg>
+  );
+}
+function LeavesDecor() {
+  return (
+    <div className="florals" aria-hidden="true">
+      <LeafSprig className="sprig-tr" />
+      <LeafSprig className="sprig-bl" flip />
+    </div>
+  );
+}
+
+function Decoration({ kind }) {
+  if (kind === 'stars') return <StarsDecor />;
+  if (kind === 'hearts') return <HeartsDecor />;
+  if (kind === 'leaves') return <LeavesDecor />;
+  if (kind === 'none') return null;
+  return <Florals />;
+}
+// tiny preview glyph for the settings / tweaks decoration picker
+function DecoGlyph({ kind }) {
+  const fill = 'var(--accent-deep)';
+  if (kind === 'none') return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+      <circle cx="12" cy="12" r="8.5" stroke="var(--soft)" strokeWidth="1.6" />
+      <line x1="6" y1="6" x2="18" y2="18" stroke="var(--soft)" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+  if (kind === 'stars') return (
+    <svg viewBox="0 0 24 24" width="22" height="22">
+      <path d="M12 1.5 C13 9 15 11 22.5 12 C15 13 13 15 12 22.5 C11 15 9 13 1.5 12 C9 11 11 9 12 1.5Z" fill={fill} />
+    </svg>
+  );
+  if (kind === 'hearts') return (
+    <svg viewBox="0 0 24 24" width="22" height="22">
+      <path d="M12 21 C2.5 13.5 4 6.5 8 6.5 C10.3 6.5 12 9 12 9 C12 9 13.7 6.5 16 6.5 C20 6.5 21.5 13.5 12 21Z" fill={fill} />
+    </svg>
+  );
+  if (kind === 'leaves') return (
+    <svg viewBox="0 0 24 24" width="22" height="22">
+      <path d="M12.4 22 C12.4 12 16 4 20.5 3 C20.5 13 17 21 12.4 22Z" fill={fill} />
+      <path d="M11.6 22 C11.6 14 8.5 7.5 4 6.6 C4 14.5 7 21.2 11.6 22Z" fill={fill} opacity="0.55" />
+    </svg>
+  );
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22">
+      {[0, 72, 144, 216, 288].map((a) => (
+        <ellipse key={a} cx="12" cy="6.4" rx="2.5" ry="4.5" fill={fill} transform={`rotate(${a} 12 12)`} />
+      ))}
+      <circle cx="12" cy="12" r="2.3" fill="var(--accent)" />
+    </svg>
+  );
+}
+const DECO_OPTS = [
+  { id: 'flowers', label: 'decoFlowers' },
+  { id: 'stars', label: 'decoStars' },
+  { id: 'hearts', label: 'decoHearts' },
+  { id: 'leaves', label: 'decoLeaves' },
+  { id: 'none', label: 'decoNone' },
+];
+
 /* ---------------- entry row ---------------- */
 function EntryRow({ value, autoFocus, onText, onColor, onRemove, onEnter }) {
   const ref = useRef(null);
@@ -1656,7 +1882,7 @@ function EntryRow({ value, autoFocus, onText, onColor, onRemove, onEnter }) {
 }
 
 /* ---------------- day card ---------------- */
-function DayCard({ date, isToday, picked, entries, holiday, onAdd, onText, onColor, onRemove, focusKey }) {
+function DayCard({ date, isToday, picked, entries, dayEvents, tags, holiday, onAdd, onText, onColor, onRemove, focusKey }) {
   const dow = WEEKDAYS[(date.getDay() + 6) % 7];
   const weekend = date.getDay() === 0 || date.getDay() === 6;
   const dk = keyOf(date);
@@ -1688,6 +1914,24 @@ function DayCard({ date, isToday, picked, entries, holiday, onAdd, onText, onCol
         </div>
       </div>
 
+      {dayEvents && dayEvents.length > 0 && (
+        <div className="day-events">
+          {dayEvents.map((e) => {
+            const tp = findTag(tags, e.type);
+            const age = ageText(e, date.getFullYear(), tags);
+            return (
+              <div key={e.id} className="day-ev">
+                <span className="day-ev-dot" style={{ background: tp.color }} />
+                <span className="day-ev-title" style={{ color: tp.color }}>{e.title}</span>
+                <span className="day-ev-tag" style={{ color: tp.color, background: tp.color + '22' }}>
+                  {tagLabel(tp)}{age ? ' · ' + age : ''}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {list.length > 0 && (
         <div className="entries">
           {list.map((entry, i) => (
@@ -1713,7 +1957,7 @@ function DayCard({ date, isToday, picked, entries, holiday, onAdd, onText, onCol
 }
 
 /* ---------------- month view ---------------- */
-function MonthGrid({ anchor, today, entries, onPick, holidayFor }) {
+function MonthGrid({ anchor, today, entries, events, onPick, holidayFor }) {
   const y = anchor.getFullYear(), m = anchor.getMonth();
   const offset = (new Date(y, m, 1).getDay() + 6) % 7;
   const dim = new Date(y, m + 1, 0).getDate();
@@ -1721,6 +1965,7 @@ function MonthGrid({ anchor, today, entries, onPick, holidayFor }) {
   const start = addDays(new Date(y, m, 1), -offset);
   const cells = [];
   for (let i = 0; i < weeks * 7; i++) cells.push(addDays(start, i));
+  const evMD = new Set((events || []).map((e) => e.month + '-' + e.day));
 
   return (
     <div className="month-grid">
@@ -1730,6 +1975,7 @@ function MonthGrid({ anchor, today, entries, onPick, holidayFor }) {
         const hol = holidayFor(dk);
         const isToday = sameDay(d, today);
         const has = entries[dk] && entries[dk].some((e) => e.text && e.text.trim());
+        const hasEv = !out && evMD.has(d.getMonth() + '-' + d.getDate());
         const cls = ['mcell'];
         if (out) cls.push('out');
         if (!out && hol && hol.kind === 'public') cls.push('holiday');
@@ -1738,7 +1984,12 @@ function MonthGrid({ anchor, today, entries, onPick, holidayFor }) {
           <button key={dk} className={cls.join(' ')} disabled={out}
             title={hol ? hol.name : ''} onClick={() => !out && onPick(d)}>
             <span className="n">{d.getDate()}</span>
-            {!out && has && <span className="ev" />}
+            {!out && (has || hasEv) && (
+              <span className="mdots">
+                {has && <span className="ev" />}
+                {hasEv && <span className="ev evt" />}
+              </span>
+            )}
           </button>
         );
       })}
@@ -1746,7 +1997,7 @@ function MonthGrid({ anchor, today, entries, onPick, holidayFor }) {
   );
 }
 
-function MonthView({ anchor, today, entries, onPick, holidayFor }) {
+function MonthView({ anchor, today, entries, events, onPick, holidayFor }) {
   // Render the anchor month plus the following months so the user can simply
   // scroll down to browse ahead.
   const AHEAD = 13;
@@ -1763,7 +2014,7 @@ function MonthView({ anchor, today, entries, onPick, holidayFor }) {
               {cap(MONTHS[mo.getMonth()])} <span className="yr">{mo.getFullYear()}</span>
             </h2>
           )}
-          <MonthGrid anchor={mo} today={today} entries={entries} onPick={onPick} holidayFor={holidayFor} />
+          <MonthGrid anchor={mo} today={today} entries={entries} events={events} onPick={onPick} holidayFor={holidayFor} />
         </div>
       ))}
       <p className="month-hint">{tr('monthHint')}</p>
@@ -1848,7 +2099,7 @@ function ListView({ entries, events, tags, today, onPick, holidayFor }) {
 }
 
 /* ---------------- events view (Viðburðir) ---------------- */
-function EventsView({ events, tags, today, onAdd, onUpdate, onRemove, onAddTag, onRemoveTag }) {
+function EventsView({ events, tags, today, onAdd, onUpdate, onRemove, onAddTag, onRemoveTag, onTagColor }) {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [title, setTitle] = useState('');
@@ -1898,6 +2149,11 @@ function EventsView({ events, tags, today, onAdd, onUpdate, onRemove, onAddTag, 
     return { ...e, next, days: daysUntil(next, today) };
   }).sort((a, b) => a.days - b.days);
 
+  const selTag = tags.find((t) => t.id === type) || null;
+  const thisYear = today.getFullYear();
+  const yearOpts = [];
+  for (let yv = thisYear + 1; yv >= thisYear - 120; yv--) yearOpts.push(yv);
+
   return (
     <div className="ev-wrap">
       {open ? (
@@ -1933,6 +2189,19 @@ function EventsView({ events, tags, today, onAdd, onUpdate, onRemove, onAddTag, 
               <button className="ev-typebtn ev-typenew" onClick={() => setAddingTag(true)}>{tr('newTag')}</button>
             )}
           </div>
+          {selTag && (
+            <div className="ev-tagcolors">
+              <span className="ev-tagcolors-lbl">{tr('tagColor')}</span>
+              <div className="ev-sw-row">
+                {TAG_COLOR_OPTIONS.map((c) => (
+                  <button key={c} type="button"
+                    className={'ev-sw' + (selTag.color === c ? ' sel' : '')}
+                    style={{ background: c }}
+                    onClick={() => onTagColor(selTag.id, c)} />
+                ))}
+              </div>
+            </div>
+          )}
           <div className="ev-daterow">
             <select className="ev-select" value={day} onChange={(e) => setDay(+e.target.value)}>
               {Array.from({ length: dim }, (_, i) => i + 1).map((n) =>
@@ -1946,8 +2215,10 @@ function EventsView({ events, tags, today, onAdd, onUpdate, onRemove, onAddTag, 
             <input type="checkbox" checked={hasYear} onChange={(e) => setHasYear(e.target.checked)} />
             <span>{tr('countYearsFrom')}</span>
             {hasYear && (
-              <input className="ev-year" type="number" value={year}
-                onChange={(e) => setYear(+e.target.value)} />
+              <select className="ev-select ev-yearsel" value={year}
+                onChange={(e) => setYear(+e.target.value)}>
+                {yearOpts.map((yv) => <option key={yv} value={yv}>{yv}</option>)}
+              </select>
             )}
           </label>
           <div className="ev-actions">
@@ -2006,9 +2277,15 @@ function EventsView({ events, tags, today, onAdd, onUpdate, onRemove, onAddTag, 
 
 /* ---------------- user settings (persisted) ---------------- */
 const SETTINGS_STORE = 'edyCalendar.settings.v1';
-const DEFAULT_SETTINGS = { lang: 'is', country: 'IS', theme: 'blush', headingFont: 'Comfortaa', florals: true };
+const DEFAULT_SETTINGS = { lang: 'is', country: 'IS', theme: 'blush', headingFont: 'Comfortaa', florals: true, decoration: 'flowers' };
+const DECORATIONS = ['none', 'flowers', 'stars', 'hearts', 'leaves'];
 function loadSettings() {
-  try { return { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem(SETTINGS_STORE)) || {}) }; }
+  try {
+    const s = { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem(SETTINGS_STORE)) || {}) };
+    // migrate the old florals on/off toggle into the decoration picker
+    if (s.decoration == null) s.decoration = s.florals === false ? 'none' : 'flowers';
+    return s;
+  }
   catch (e) { return { ...DEFAULT_SETTINGS }; }
 }
 function saveSettings(s) { try { localStorage.setItem(SETTINGS_STORE, JSON.stringify(s)); } catch (e) {} }
@@ -2115,13 +2392,21 @@ function SettingsModal({ settings, onChange, onClose }) {
         {/* Appearance extras */}
         <div className="set-sect">
           <p className="set-label">{tr('appearance')}</p>
-          <div className="set-toggle-row">
-            <span className="set-toggle-txt">{tr('florals')}</span>
-            <button className="set-switch" data-on={settings.florals ? '1' : '0'}
-              role="switch" aria-checked={settings.florals}
-              onClick={() => onChange('florals', !settings.florals)}><i /></button>
+          <span className="set-toggle-txt" style={{ display: 'block', marginBottom: 10 }}>{tr('decoration')}</span>
+          <div className="deco-grid">
+            {DECO_OPTS.map((o) => {
+              const on = (settings.decoration || 'flowers') === o.id;
+              return (
+                <button key={o.id} className={'deco-card' + (on ? ' on' : '')}
+                  onClick={() => onChange('decoration', o.id)}>
+                  <span className="deco-ico"><DecoGlyph kind={o.id} /></span>
+                  <span className="deco-name">{tr(o.label)}</span>
+                  {on && <span className="deco-tick"><Tick /></span>}
+                </button>
+              );
+            })}
           </div>
-          <div style={{ paddingTop: 14 }}>
+          <div style={{ paddingTop: 18 }}>
             <span className="set-toggle-txt" style={{ display: 'block', marginBottom: 9 }}>{tr('headingFont')}</span>
             <div className="set-seg">
               {['Comfortaa', 'Quicksand'].map((f) => (
@@ -2141,7 +2426,7 @@ function SettingsModal({ settings, onChange, onClose }) {
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "palette": "blush",
   "headingFont": "Comfortaa",
-  "florals": true
+  "decoration": "flowers"
 }/*EDITMODE-END*/;
 
 /* ---------------- app ---------------- */
@@ -2179,6 +2464,10 @@ function App() {
   }, [settings.headingFont]);
   // holidays follow the selected country, named in the selected language
   const holidayFor = (dk) => window.EdyHolidays.lookup(settings.country, settings.lang, dk);
+  // recurring events grouped by month-day, so week & month views can show them too
+  const eventsByMD = {};
+  events.forEach((e) => { const mk = e.month + '-' + e.day; (eventsByMD[mk] = eventsByMD[mk] || []).push(e); });
+  const eventsOnDate = (d) => eventsByMD[d.getMonth() + '-' + d.getDate()] || [];
 
   const days = [];
   for (let i = 0; i < 7; i++) days.push(addDays(weekStart, i));
@@ -2226,6 +2515,7 @@ function App() {
     return tg;
   };
   const removeTag = (id) => setTags((prev) => prev.filter((t) => t.id !== id));
+  const setTagColor = (id, color) => setTags((prev) => prev.map((t) => t.id === id ? { ...t, color } : t));
   const pickDay = (d) => { setWeekStart(startOfWeek(d)); setPicked(keyOf(d)); setView('week'); };
   const goToday = () => {
     setWeekStart(startOfWeek(new Date()));
@@ -2246,7 +2536,7 @@ function App() {
       <button className="gear-btn" aria-label={tr('settingsAria')} onClick={() => setShowSettings(true)}>
         <GearIcon />
       </button>
-      {settings.florals && <Florals />}
+      <Decoration kind={settings.decoration} />
       <div className="shell">
         <header className="cal-head">
           <p className="kicker"><span>{KICKERS[view]}</span></p>
@@ -2288,6 +2578,8 @@ function App() {
                 isToday={sameDay(d, today)}
                 picked={picked === keyOf(d)}
                 entries={entries[keyOf(d)]}
+                dayEvents={eventsOnDate(d)}
+                tags={tags}
                 holiday={holidayFor(keyOf(d))}
                 focusKey={focusKey}
                 onAdd={addEntry}
@@ -2299,7 +2591,7 @@ function App() {
           </div>
         )}
         {view === 'month' && (
-          <MonthView anchor={monthAnchor} today={today} entries={entries} onPick={pickDay} holidayFor={holidayFor} />
+          <MonthView anchor={monthAnchor} today={today} entries={entries} events={events} onPick={pickDay} holidayFor={holidayFor} />
         )}
         {view === 'list' && (
           <ListView entries={entries} events={events} tags={tags} today={today} onPick={pickDay} holidayFor={holidayFor} />
@@ -2307,7 +2599,7 @@ function App() {
         {view === 'events' && (
           <EventsView events={events} tags={tags} today={today}
             onAdd={addEvent} onUpdate={updateEvent} onRemove={removeEvent}
-            onAddTag={addTag} onRemoveTag={removeTag} />
+            onAddTag={addTag} onRemoveTag={removeTag} onTagColor={setTagColor} />
         )}
 
         {view === 'week' && <p className="footer-note">{tr('footerWeek')}</p>}
@@ -2351,8 +2643,9 @@ function App() {
         <TweakRadio label="Fyrirsögn" value={settings.headingFont}
           options={['Comfortaa', 'Quicksand']}
           onChange={(v) => updateSetting('headingFont', v)} />
-        <TweakToggle label="Blómaskraut" value={settings.florals}
-          onChange={(v) => updateSetting('florals', v)} />
+        <TweakSelect label="Skraut" value={settings.decoration || 'flowers'}
+          options={[{ value: 'flowers', label: 'Blóm' }, { value: 'stars', label: 'Stjörnur' }, { value: 'hearts', label: 'Hjörtu' }, { value: 'leaves', label: 'Lauf' }, { value: 'none', label: 'Ekkert' }]}
+          onChange={(v) => updateSetting('decoration', v)} />
       </TweaksPanel>
     </div>
   );
