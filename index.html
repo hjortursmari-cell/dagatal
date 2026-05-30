@@ -90,7 +90,7 @@
   .nav-btn:active { transform: scale(.9); }
   .nav-btn svg { width: 18px; height: 18px; }
 
-  .subrow { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+  .subrow { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; gap: 8px; flex-wrap: wrap; }
   .week-label { font-size: 13.5px; color: var(--soft); font-weight: 600; }
   .today-btn {
     appearance: none; cursor: pointer;
@@ -228,8 +228,8 @@
   /* ---- view toggle ---- */
   .viewseg { display:inline-flex; background:var(--badge); border-radius:999px; padding:3px; }
   .viewseg button { appearance:none;border:none;background:transparent;cursor:pointer;
-    font-family:var(--heading-font),sans-serif; font-weight:600; font-size:13px;
-    color:var(--soft); padding:6px 13px; border-radius:999px;
+    font-family:var(--heading-font),sans-serif; font-weight:600; font-size:12.5px;
+    color:var(--soft); padding:6px 11px; border-radius:999px; white-space:nowrap;
     transition:background .16s ease,color .16s ease; }
   .viewseg button.on { background:var(--surface); color:var(--accent-deep);
     box-shadow:0 2px 8px var(--shadow); }
@@ -292,6 +292,78 @@
     100% { box-shadow:0 6px 20px var(--shadow), inset 0 0 0 0 var(--accent-deep); }
   }
   .day.picked:not(.today) { animation: pickpulse 1.8s ease; }
+
+  /* ---- events view (Viðburðir) ---- */
+  .ev-wrap { margin-top: 20px; display:flex; flex-direction:column; gap:13px; }
+  .ev-addbtn { appearance:none; cursor:pointer; width:100%;
+    border:1.5px dashed var(--accent); background:var(--surface);
+    color:var(--accent-deep); font-family:var(--heading-font),sans-serif; font-weight:600; font-size:15px;
+    padding:15px; border-radius:18px; display:flex; align-items:center; justify-content:center; gap:9px;
+    transition:background .16s ease, transform .12s ease; }
+  .ev-addbtn:hover { background:var(--holiday-bg); }
+  .ev-addbtn:active { transform:scale(.99); }
+  .ev-plus { width:24px; height:24px; border-radius:50%; background:var(--accent-deep); color:#fff;
+    display:grid; place-items:center; font-size:18px; line-height:1; }
+
+  .ev-form { background:var(--surface); border:1px solid var(--line); border-radius:22px;
+    padding:16px; box-shadow:0 6px 20px var(--shadow); display:flex; flex-direction:column; gap:12px; }
+  .ev-input { border:none; outline:none; background:var(--badge); border-radius:12px;
+    padding:12px 14px; font-family:'Nunito',sans-serif; font-size:16px; color:var(--ink); }
+  .ev-input::placeholder { color:var(--soft); }
+  .ev-types { display:flex; gap:8px; flex-wrap:wrap; }
+  .ev-typebtn { appearance:none; cursor:pointer; border:1.5px solid var(--line);
+    background:var(--surface); color:var(--soft); border-radius:999px; padding:7px 13px;
+    font-family:var(--heading-font),sans-serif; font-weight:600; font-size:13px;
+    display:inline-flex; align-items:center; gap:7px; transition:border-color .14s ease, color .14s ease; }
+  .ev-typebtn.on { background:var(--holiday-bg); }
+  .ev-dot { width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
+  .ev-daterow { display:flex; gap:9px; }
+  .ev-select { appearance:none; flex:0 0 auto; border:1px solid var(--line); background:var(--surface);
+    border-radius:12px; padding:11px 14px; font-family:'Nunito',sans-serif; font-size:15px; color:var(--ink);
+    cursor:pointer; outline:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23b197a1' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat; background-position:right 12px center; padding-right:30px; }
+  .ev-select.grow { flex:1 1 auto; }
+  .ev-yearrow { display:flex; align-items:center; gap:9px; font-family:var(--heading-font),sans-serif;
+    font-weight:600; font-size:13.5px; color:var(--soft); cursor:pointer; }
+  .ev-yearrow input[type=checkbox] { width:18px; height:18px; accent-color:var(--accent-deep); cursor:pointer; }
+  .ev-year { width:88px; border:1px solid var(--line); background:var(--surface); border-radius:10px;
+    padding:7px 10px; font-family:'Nunito',sans-serif; font-size:14px; color:var(--ink); outline:none; }
+  .ev-actions { display:flex; gap:9px; justify-content:flex-end; margin-top:2px; }
+  .ev-cancel { appearance:none; cursor:pointer; border:none; background:transparent; color:var(--soft);
+    font-family:var(--heading-font),sans-serif; font-weight:600; font-size:14px; padding:10px 14px; border-radius:12px; }
+  .ev-cancel:hover { background:var(--badge); }
+  .ev-save { appearance:none; cursor:pointer; border:none; background:var(--accent-deep); color:#fff;
+    font-family:var(--heading-font),sans-serif; font-weight:600; font-size:14px; padding:10px 18px; border-radius:12px;
+    transition:transform .12s ease, filter .14s ease; }
+  .ev-save:hover { filter:brightness(1.05); }
+  .ev-save:active { transform:scale(.97); }
+
+  .ev-list { display:flex; flex-direction:column; gap:11px; }
+  .ev-card { position:relative; display:flex; align-items:center; gap:13px;
+    background:var(--surface); border:1px solid var(--line); border-radius:20px;
+    padding:13px 15px; box-shadow:0 5px 16px var(--shadow);
+    transition:box-shadow .18s ease, transform .18s ease; }
+  .ev-card.soon { box-shadow:0 7px 22px var(--shadow), inset 0 0 0 1.5px var(--accent); }
+  .ev-badge { flex:0 0 auto; width:50px; height:50px; border-radius:15px; color:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1; }
+  .ev-bd-day { font-family:var(--heading-font),sans-serif; font-weight:700; font-size:21px; }
+  .ev-bd-mon { font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; margin-top:3px; opacity:.92; }
+  .ev-main { flex:1 1 auto; min-width:0; }
+  .ev-title { font-family:var(--heading-font),sans-serif; font-weight:600; font-size:16.5px; color:var(--ink);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ev-meta { display:flex; align-items:center; gap:9px; margin-top:4px; flex-wrap:wrap; }
+  .ev-typechip { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; }
+  .ev-turns { font-size:12.5px; color:var(--soft); font-weight:600; }
+  .ev-right { flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+  .ev-count { font-family:var(--heading-font),sans-serif; font-weight:700; font-size:12.5px;
+    color:var(--accent-deep); background:var(--badge); padding:5px 10px; border-radius:999px; white-space:nowrap; }
+  .ev-count.now { background:var(--accent-deep); color:#fff; }
+  .ev-del { appearance:none; border:none; background:transparent; cursor:pointer; color:var(--soft);
+    width:24px; height:24px; border-radius:50%; display:grid; place-items:center; opacity:.55;
+    transition:opacity .14s ease, color .14s ease; }
+  .ev-del:hover { opacity:1; color:var(--accent-deep); }
+  .ev-del svg { width:13px; height:13px; }
 
   @media (max-width: 380px) {
     .month-title { font-size: 27px; }
@@ -1036,6 +1108,39 @@ function saveEntries(obj) {
   try { localStorage.setItem(STORE, JSON.stringify(obj)); } catch (e) {}
 }
 
+/* ---- recurring events (afmæli, tímamót) ---- */
+const EVENTS_STORE = 'edyCalendar.events.v1';
+const EVENT_TYPES = [
+  { id: 'afmaeli',  label: 'Afmæli',           color: '#cf7691' },
+  { id: 'timamot',  label: 'Brúðkaupsafmæli',  color: '#b89fd4' },
+  { id: 'annad',    label: 'Annað',            color: '#43b07f' },
+];
+const eventType = (id) => EVENT_TYPES.find((t) => t.id === id) || EVENT_TYPES[2];
+function loadEvents() {
+  try { return (JSON.parse(localStorage.getItem(EVENTS_STORE)) || []).map((e) => ({
+    id: e.id, title: e.title || '', month: e.month | 0, day: e.day | 0,
+    type: e.type || 'annad', year: e.year || null,
+  })); } catch (e) { return []; }
+}
+function saveEvents(arr) {
+  try { localStorage.setItem(EVENTS_STORE, JSON.stringify(arr)); } catch (e) {}
+}
+function midnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function nextOccurrence(month, day, from) {
+  const f0 = midnight(from);
+  let d = new Date(f0.getFullYear(), month, day);
+  if (d < f0) d = new Date(f0.getFullYear() + 1, month, day);
+  return d;
+}
+function daysUntil(d, from) { return Math.round((midnight(d) - midnight(from)) / 86400000); }
+function countdownText(n) {
+  if (n === 0) return 'Í dag ✿';
+  if (n === 1) return 'Á morgun';
+  if (n < 7) return `Eftir ${n} daga`;
+  if (n < 14) return 'Í næstu viku';
+  return `Eftir ${n} daga`;
+}
+
 /* ---------------- florals ---------------- */
 function Flower({ cx, cy, s = 1 }) {
   const petals = [0, 72, 144, 216, 288].map((a) => (
@@ -1294,6 +1399,119 @@ function ListView({ entries, onPick }) {
   );
 }
 
+/* ---------------- events view (afmæli & tímamót) ---------------- */
+function EventsView({ events, today, onAdd, onRemove }) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState('');
+  const [day, setDay] = useState(today.getDate());
+  const [month, setMonth] = useState(today.getMonth());
+  const [type, setType] = useState('afmaeli');
+  const [hasYear, setHasYear] = useState(false);
+  const [year, setYear] = useState(today.getFullYear());
+
+  const dim = new Date(2024, month + 1, 0).getDate(); // leap year → allow 29 Feb
+  const reset = () => { setTitle(''); setDay(today.getDate()); setMonth(today.getMonth());
+    setType('afmaeli'); setHasYear(false); setYear(today.getFullYear()); };
+  const submit = () => {
+    if (!title.trim()) return;
+    onAdd({ id: 'ev_' + Date.now(), title: title.trim(),
+      day: Math.min(day, new Date(2024, month + 1, 0).getDate()), month, type,
+      year: hasYear ? year : null });
+    reset(); setOpen(false);
+  };
+
+  const sorted = [...events].map((e) => {
+    const next = nextOccurrence(e.month, e.day, today);
+    return { ...e, next, days: daysUntil(next, today) };
+  }).sort((a, b) => a.days - b.days);
+
+  return (
+    <div className="ev-wrap">
+      {open ? (
+        <div className="ev-form">
+          <input className="ev-input" placeholder="Nafn eða tilefni…" value={title} autoFocus
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') submit(); }} />
+          <div className="ev-types">
+            {EVENT_TYPES.map((tp) => (
+              <button key={tp.id} className={'ev-typebtn' + (type === tp.id ? ' on' : '')}
+                style={type === tp.id ? { borderColor: tp.color, color: tp.color } : null}
+                onClick={() => setType(tp.id)}>
+                <span className="ev-dot" style={{ background: tp.color }} />{tp.label}
+              </button>
+            ))}
+          </div>
+          <div className="ev-daterow">
+            <select className="ev-select" value={day} onChange={(e) => setDay(+e.target.value)}>
+              {Array.from({ length: dim }, (_, i) => i + 1).map((n) =>
+                <option key={n} value={n}>{n}.</option>)}
+            </select>
+            <select className="ev-select grow" value={month} onChange={(e) => setMonth(+e.target.value)}>
+              {MONTHS.map((mo, i) => <option key={i} value={i}>{cap(mo)}</option>)}
+            </select>
+          </div>
+          <label className="ev-yearrow">
+            <input type="checkbox" checked={hasYear} onChange={(e) => setHasYear(e.target.checked)} />
+            <span>Telja ár frá</span>
+            {hasYear && (
+              <input className="ev-year" type="number" value={year}
+                onChange={(e) => setYear(+e.target.value)} />
+            )}
+          </label>
+          <div className="ev-actions">
+            <button className="ev-cancel" onClick={() => { reset(); setOpen(false); }}>Hætta við</button>
+            <button className="ev-save" onClick={submit}>Vista viðburð</button>
+          </div>
+        </div>
+      ) : (
+        <button className="ev-addbtn" onClick={() => setOpen(true)}>
+          <span className="ev-plus">+</span> Bæta við viðburði
+        </button>
+      )}
+
+      {sorted.length === 0 && !open && (
+        <div className="list-empty">
+          <div style={{ fontSize: 30, marginBottom: 12 }}>♡</div>
+          Engir viðburðir ennþá.<br />Bættu við afmælum og tímamótum.
+        </div>
+      )}
+
+      <div className="ev-list">
+        {sorted.map((e) => {
+          const tp = eventType(e.type);
+          const turning = e.year ? (e.next.getFullYear() - e.year) : null;
+          const soon = e.days <= 7;
+          return (
+            <div key={e.id} className={'ev-card' + (soon ? ' soon' : '')}>
+              <div className="ev-badge" style={{ background: tp.color }}>
+                <span className="ev-bd-day">{e.day}</span>
+                <span className="ev-bd-mon">{MONTHS_SHORT[e.month]}</span>
+              </div>
+              <div className="ev-main">
+                <div className="ev-title">{e.title}</div>
+                <div className="ev-meta">
+                  <span className="ev-typechip" style={{ color: tp.color }}>
+                    <span className="ev-dot" style={{ background: tp.color }} />{tp.label}
+                  </span>
+                  {turning != null && turning > 0 && (
+                    <span className="ev-turns">verður {turning} ára</span>
+                  )}
+                </div>
+              </div>
+              <div className="ev-right">
+                <span className={'ev-count' + (e.days === 0 ? ' now' : '')}>{countdownText(e.days)}</span>
+                <button className="ev-del" title="Eyða" onClick={() => onRemove(e.id)}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M5 5l14 14M19 5L5 19" /></svg>
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- tweaks defaults ---------------- */
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "palette": "blush",
@@ -1305,14 +1523,16 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const today = new Date();
-  const [view, setView] = useState('week');
+  const [view, setView] = useState('list');
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [monthAnchor, setMonthAnchor] = useState(() => startOfMonth(new Date()));
   const [entries, setEntries] = useState(loadEntries);
+  const [events, setEvents] = useState(loadEvents);
   const [focusKey, setFocusKey] = useState(null);
   const [picked, setPicked] = useState(null);
 
   useEffect(() => { saveEntries(entries); }, [entries]);
+  useEffect(() => { saveEvents(events); }, [events]);
   useEffect(() => {
     if (!picked) return;
     const id = setTimeout(() => setPicked(null), 1900);
@@ -1359,15 +1579,21 @@ function App() {
   const toMonth = () => { setMonthAnchor(startOfMonth(mid)); setView('month'); };
   const toWeek = () => setView('week');
   const toList = () => setView('list');
+  const toEvents = () => setView('events');
+  const addEvent = (ev) => setEvents((prev) => [...prev, ev]);
+  const removeEvent = (id) => setEvents((prev) => prev.filter((e) => e.id !== id));
   const pickDay = (d) => { setWeekStart(startOfWeek(d)); setPicked(keyOf(d)); setView('week'); };
   const goToday = () => {
     setWeekStart(startOfWeek(new Date()));
     setMonthAnchor(startOfMonth(new Date()));
   };
 
-  const titleMain = view === 'list' ? 'Færslur' : (view === 'week' ? cap(MONTHS[mid.getMonth()]) : cap(MONTHS[monthAnchor.getMonth()]));
+  const KICKERS = { week: 'Vikudagatal', month: 'Mánaðardagatal', list: 'Yfirlit færslna', events: 'Afmæli & tímamót' };
+  const titleMain = view === 'list' ? 'Yfirlit' : view === 'events' ? 'Viðburðir'
+    : (view === 'week' ? cap(MONTHS[mid.getMonth()]) : cap(MONTHS[monthAnchor.getMonth()]));
   const titleYear = view === 'week' ? mid.getFullYear() : monthAnchor.getFullYear();
-  const showYear = view !== 'list';
+  const showYear = view === 'week' || view === 'month';
+  const hasNav = view === 'week' || view === 'month';
   const rangeText = `${days[0].getDate()}. ${MONTHS_SHORT[days[0].getMonth()]} – ${days[6].getDate()}. ${MONTHS_SHORT[days[6].getMonth()]}`;
   const isCur = view === 'week' ? sameDay(weekStart, startOfWeek(today)) : sameMonth(monthAnchor, today);
 
@@ -1376,12 +1602,12 @@ function App() {
       {t.florals && <Florals />}
       <div className="shell">
         <header className="cal-head">
-          <p className="kicker"><span>{view === 'week' ? 'Vikudagatal' : view === 'month' ? 'Mánaðardagatal' : 'Yfirlit færslna'}</span></p>
+          <p className="kicker"><span>{KICKERS[view]}</span></p>
           <div className="month-row">
             <h1 className="month-title" style={{ fontFamily: 'var(--heading-font)' }}>
               {titleMain}{showYear && <span className="yr"> {titleYear}</span>}
             </h1>
-            {view !== 'list' && (
+            {hasNav && (
               <div className="nav">
                 <button className="nav-btn" aria-label="Til baka" onClick={() => go(-1)}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
@@ -1394,11 +1620,12 @@ function App() {
           </div>
           <div className="subrow">
             <div className="viewseg">
+              <button className={view === 'list' ? 'on' : ''} onClick={toList}>Yfirlit</button>
               <button className={view === 'week' ? 'on' : ''} onClick={toWeek}>Vika</button>
               <button className={view === 'month' ? 'on' : ''} onClick={toMonth}>Mánuður</button>
-              <button className={view === 'list' ? 'on' : ''} onClick={toList}>Listi</button>
+              <button className={view === 'events' ? 'on' : ''} onClick={toEvents}>Viðburðir</button>
             </div>
-            {view !== 'list' && (
+            {hasNav && (
               <button className={'today-btn' + (isCur ? ' is-current' : '')} onClick={goToday}>Í dag</button>
             )}
           </div>
@@ -1430,9 +1657,13 @@ function App() {
         {view === 'list' && (
           <ListView entries={entries} onPick={pickDay} />
         )}
+        {view === 'events' && (
+          <EventsView events={events} today={today} onAdd={addEvent} onRemove={removeEvent} />
+        )}
 
         {view === 'week' && <p className="footer-note">Færslur vistast sjálfkrafa á þessu tæki ♡</p>}
         {view === 'list' && <p className="footer-note">Þú ert frábær og stendur þig vel ♡</p>}
+        {view === 'events' && <p className="footer-note">Gleymdu aldrei stóru stundunum ♡</p>}
       </div>
 
       <TweaksPanel>
