@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Comfortaa:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Comfortaa:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@400;500;600;700&family=Pacifico&family=Caveat:wght@400;500;600;700&family=Chewy&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
@@ -32,7 +32,7 @@
       radial-gradient(1200px 480px at 50% -8%, var(--bg-glow) 0%, transparent 60%),
       var(--bg);
     position: relative;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   .florals { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .florals svg { position: absolute; }
@@ -45,11 +45,32 @@
     z-index: 1;
     max-width: 462px;
     margin: 0 auto;
-    padding: 26px 18px 72px;
+    padding: 0 18px 72px;
   }
 
   /* ---- header ---- */
-  .cal-head { margin-bottom: 18px; }
+  .cal-head {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    margin: 0 -18px 18px;
+    padding: calc(20px + env(safe-area-inset-top)) 18px 12px;
+    background: var(--bg);
+    border-bottom: 1px solid transparent;
+    transition: box-shadow .2s ease, border-color .2s ease;
+  }
+  .cal-head::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 16px;
+    background: linear-gradient(var(--bg), transparent);
+    pointer-events: none;
+  }
+  .cal-head.stuck {
+    box-shadow: 0 8px 22px var(--shadow);
+    border-bottom-color: var(--line);
+  }
+  @media (max-width: 380px) {
+    .cal-head { margin-left: -14px; margin-right: -14px; padding-left: 14px; padding-right: 14px; }
+  }
   .kicker {
     font-family: var(--heading-font), 'Quicksand', sans-serif;
     font-weight: 600;
@@ -226,10 +247,12 @@
   .color-pop .sw.sel { box-shadow:0 0 0 2px var(--accent-deep); }
 
   /* ---- view toggle ---- */
-  .viewseg { display:inline-flex; background:var(--badge); border-radius:999px; padding:3px; }
+  .viewseg { display:inline-flex; background:var(--badge); border-radius:999px; padding:3px;
+    max-width:100%; overflow-x:auto; scrollbar-width:none; }
+  .viewseg::-webkit-scrollbar { display:none; }
   .viewseg button { appearance:none;border:none;background:transparent;cursor:pointer;
     font-family:var(--heading-font),sans-serif; font-weight:600; font-size:12.5px;
-    color:var(--soft); padding:6px 11px; border-radius:999px; white-space:nowrap;
+    color:var(--soft); padding:6px 10px; border-radius:999px; white-space:nowrap;
     transition:background .16s ease,color .16s ease; }
   .viewseg button.on { background:var(--surface); color:var(--accent-deep);
     box-shadow:0 2px 8px var(--shadow); }
@@ -239,7 +262,7 @@
   /* ---- month grid ---- */
   .month-wrap { margin-top: 20px; }
   .dow-head { display:grid; grid-template-columns:repeat(7,1fr); gap:7px; margin-bottom:9px; padding:0 2px; }
-  .dow-sticky { position:sticky; top:0; z-index:5; padding-top:8px; padding-bottom:8px;
+  .dow-sticky { position:sticky; top:var(--head-h,0px); z-index:5; padding-top:8px; padding-bottom:8px;
     margin-bottom:2px; background:linear-gradient(var(--bg) 72%, transparent); }
   .msect { margin-top:4px; }
   .msect-cap { font-family:var(--heading-font),'Comfortaa',sans-serif; font-weight:600;
@@ -544,6 +567,109 @@
     background: var(--accent-deep); display: grid; place-items: center; }
   .deco-tick svg { width: 9px; height: 9px; stroke: #fff; }
 
+  /* ---- entry drag handle + reorder ---- */
+  .entry { transition: transform .18s cubic-bezier(.2,.8,.3,1); }
+  .entry-grip { flex: 0 0 auto; align-self: stretch; display: none;
+    align-items: center; justify-content: center; width: 22px; margin: -5px 0 -5px -2px;
+    color: var(--soft); cursor: grab; touch-action: none; opacity: .5;
+    transition: opacity .14s ease, color .14s ease; border-radius: 8px; }
+  .day.reorderable .entry-grip { display: flex; }
+  .entry-grip:hover { opacity: 1; color: var(--accent-deep); background: var(--entry-hover); }
+  .entry-grip svg { width: 14px; height: 14px; }
+  .entries.dragging { cursor: grabbing; }
+  .entry.is-dragging { z-index: 6; position: relative; cursor: grabbing; transition: none; }
+  .entry.is-dragging .entry-grip { cursor: grabbing; opacity: 1; color: var(--accent-deep); }
+  .entry.lifted { background: var(--surface);
+    box-shadow: 0 10px 26px var(--shadow), inset 0 0 0 1px var(--line); }
+
+  /* ---- entry time chip ---- */
+  .entry-time { flex: 0 0 auto; align-self: flex-start; margin-top: 1px; position: relative; }
+  .entry-time input { appearance: none; -webkit-appearance: none; border: 1px solid var(--line);
+    background: var(--badge); color: var(--accent-deep); border-radius: 9px;
+    font-family: var(--heading-font), sans-serif; font-weight: 700; font-size: 12.5px;
+    padding: 3px 7px; outline: none; cursor: pointer; line-height: 1.2; min-width: 60px; }
+  .entry-time input::-webkit-calendar-picker-indicator { width: 11px; opacity: .45; margin-left: 1px; }
+  .entry-time input:focus { border-color: var(--accent); }
+  .list-time { font-family: var(--heading-font), sans-serif; font-weight: 700;
+    font-size: 12.5px; color: var(--accent-deep); margin-right: 1px; }
+
+  /* ---- matte colour wheel picker ---- */
+  .color-pop.wheel { flex-direction: column; gap: 10px; padding: 12px; width: 220px;
+    border-radius: 18px; left: -6px; }
+  .cw-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; }
+  .cw-sw { appearance: none; width: 100%; aspect-ratio: 1/1; border-radius: 50%;
+    border: 2px solid transparent; cursor: pointer; padding: 0;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.08), inset 0 1px 2px rgba(255,255,255,.35);
+    transition: transform .12s ease; }
+  .cw-sw:hover { transform: scale(1.16); }
+  .cw-sw.sel { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent-deep); }
+  .cw-default { display: flex; align-items: center; gap: 9px; padding-top: 2px;
+    border-top: 1px solid var(--line); margin-top: 1px; }
+  .cw-default button { appearance: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    border: 1px solid var(--line); background: var(--surface); border-radius: 10px;
+    padding: 6px 11px; font-family: var(--heading-font), sans-serif; font-weight: 600; font-size: 12.5px;
+    color: var(--ink); }
+  .cw-default button.sel { border-color: var(--accent-deep); background: var(--holiday-bg); }
+  .cw-default .dot { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,.12); }
+
+  /* ---- font picker grid ---- */
+  .font-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .font-card { appearance: none; cursor: pointer; position: relative; text-align: left;
+    border: 1.5px solid var(--line); background: var(--surface); border-radius: 16px;
+    padding: 13px 14px; box-shadow: 0 3px 11px var(--shadow);
+    transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease, background .14s ease; }
+  .font-card:hover { box-shadow: 0 7px 16px var(--shadow); transform: translateY(-1px); }
+  .font-card.on { border-color: var(--accent-deep); background: var(--holiday-bg); }
+  .font-card .fc-big { font-size: 22px; color: var(--ink); line-height: 1; }
+  .font-card .fc-name { display: block; margin-top: 7px; font-size: 11px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--soft);
+    font-family: 'Nunito', sans-serif; }
+  .font-card .deco-tick { top: 9px; right: 9px; }
+
+  /* ---- diary view (Dagbók) ---- */
+  .diary-wrap { margin-top: 18px; display: flex; flex-direction: column; gap: 16px; }
+  .diary-nav { display: flex; align-items: center; gap: 11px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+    padding: 11px 13px; box-shadow: 0 5px 16px var(--shadow); }
+  .diary-nav .dn-btn { appearance: none; border: none; cursor: pointer;
+    width: 38px; height: 38px; border-radius: 50%; flex: 0 0 auto;
+    background: var(--badge); color: var(--accent-deep); display: grid; place-items: center;
+    transition: background .16s ease, transform .14s ease; }
+  .diary-nav .dn-btn:hover { background: var(--holiday-bg); }
+  .diary-nav .dn-btn:active { transform: scale(.9); }
+  .diary-nav .dn-btn svg { width: 17px; height: 17px; }
+  .diary-nav .dn-mid { flex: 1 1 auto; min-width: 0; text-align: center; }
+  .diary-nav .dn-dow { font-family: var(--heading-font), sans-serif; font-weight: 600;
+    font-size: 17px; color: var(--ink); text-transform: capitalize; }
+  .diary-nav .dn-date { font-size: 12.5px; color: var(--soft); font-weight: 600; margin-top: 2px; }
+  .diary-nav .dn-today { display: inline-block; margin-top: 4px; font-size: 10.5px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase; color: #fff; background: var(--accent-deep);
+    padding: 2px 9px; border-radius: 999px; }
+  .diary-sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 22px;
+    padding: 16px; box-shadow: 0 6px 20px var(--shadow); }
+  .diary-sheet textarea { width: 100%; border: none; outline: none; resize: none; background: transparent;
+    font-family: 'Nunito', sans-serif; font-size: 16px; line-height: 1.6; color: var(--ink);
+    min-height: 168px; padding: 0; }
+  .diary-sheet textarea::placeholder { color: var(--soft); opacity: .7; }
+  .diary-count { margin-top: 10px; text-align: right; font-size: 11.5px; color: var(--soft);
+    font-family: var(--heading-font), sans-serif; }
+  .diary-jumpto { appearance: none; cursor: pointer; width: 100%; text-align: left; font-family: inherit;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    padding: 13px 15px; box-shadow: 0 4px 14px var(--shadow); display: flex; gap: 12px; align-items: flex-start;
+    transition: box-shadow .16s ease, transform .14s ease; }
+  .diary-jumpto:hover { box-shadow: 0 8px 20px var(--shadow); }
+  .diary-jumpto:active { transform: scale(.995); }
+  .diary-jumpto.cur { border-color: var(--accent-deep); background: var(--holiday-bg); }
+  .dj-badge { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 13px; background: var(--badge);
+    color: var(--accent-deep); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+  .dj-badge .dn { font-family: var(--heading-font), sans-serif; font-weight: 700; font-size: 19px; color: var(--ink); }
+  .dj-badge .dm { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; margin-top: 2px; opacity: .85; }
+  .dj-main { flex: 1 1 auto; min-width: 0; }
+  .dj-dow { font-family: var(--heading-font), sans-serif; font-weight: 600; font-size: 14.5px;
+    color: var(--ink); text-transform: capitalize; }
+  .dj-excerpt { font-size: 13.5px; color: var(--soft); line-height: 1.45; margin-top: 3px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
   @media (max-width: 380px) {
     .month-title { font-size: 27px; }
     .shell { padding-left: 14px; padding-right: 14px; }
@@ -601,7 +727,7 @@ window.EdyI18n = (function () {
       listKicker: 'Yfirlit færslna', eventsKicker: 'Afmæli & tímamót',
       listTitle: 'Yfirlit', eventsTitle: 'Viðburðir',
       // view segmented control
-      segWeek: 'Vika', segMonth: 'Mánuður', segList: 'Yfirlit', segEvents: 'Viðburðir',
+      segWeek: 'Vika', segMonth: 'Mánuður', segList: 'Yfirlit', segEvents: 'Viðburðir', segDiary: 'Dagbók',
       today: 'Í dag', back: 'Til baka', forward: 'Áfram',
       // entries
       addEntry: 'Bæta við færslu', addMore: 'Bæta við',
@@ -627,12 +753,23 @@ window.EdyI18n = (function () {
       countryNote: 'Stýrir frídögum í dagatalinu', close: 'Loka', settingsAria: 'Stillingar',
       decoration: 'Skraut', tagColor: 'Litur á merki',
       decoNone: 'Ekkert', decoFlowers: 'Blóm', decoStars: 'Stjörnur', decoHearts: 'Hjörtu', decoLeaves: 'Lauf',
+      decoMoons: 'Túnglar', decoButterflies: 'Fiðrildi', decoSnow: 'Snjór', decoClouds: 'Skýin', decoConfetti: 'Konfetti', decoSuns: 'Sólir',
+      // diary
+      diaryKicker: 'Dagbókarfærslur', diaryTitle: 'Dagbók',
+      diaryWrite: 'Kæra dagbók… hvernig var dagurinn í dag?',
+      diaryEmpty1: 'Engar dagbókarfærslur enn.', diaryEmpty2: 'Skrifaðu um daginn í dag ♥',
+      diaryEarlier: 'Fyrri færslur', diaryToday: 'Í dag',
+      footerDiary: 'Orðin þín eru geymd örugg á þessu tæki ♡',
+      // entries / appearance extras
+      entriesLabel: 'Færslur', useTime: 'Velja tíma á færslur',
+      useTimeNote: 'Bætir tímavali við hverja færslu', font: 'Letur',
+      moreColors: 'Fleiri litir',
     },
     en: {
       weekKicker: 'Weekly planner', monthKicker: 'Monthly calendar',
       listKicker: 'Notes overview', eventsKicker: 'Birthdays & milestones',
       listTitle: 'Overview', eventsTitle: 'Events',
-      segWeek: 'Week', segMonth: 'Month', segList: 'Overview', segEvents: 'Events',
+      segWeek: 'Week', segMonth: 'Month', segList: 'Overview', segEvents: 'Events', segDiary: 'Diary',
       today: 'Today', back: 'Back', forward: 'Forward',
       addEntry: 'Add a note', addMore: 'Add',
       writeHere: 'Write here…', textColor: 'Text colour', delete: 'Delete',
@@ -655,12 +792,21 @@ window.EdyI18n = (function () {
       countryNote: 'Sets which public holidays appear', close: 'Done', settingsAria: 'Settings',
       decoration: 'Decoration', tagColor: 'Tag colour',
       decoNone: 'None', decoFlowers: 'Flowers', decoStars: 'Stars', decoHearts: 'Hearts', decoLeaves: 'Leaves',
+      decoMoons: 'Moons', decoButterflies: 'Butterflies', decoSnow: 'Snow', decoClouds: 'Clouds', decoConfetti: 'Confetti', decoSuns: 'Suns',
+      diaryKicker: 'Diary entries', diaryTitle: 'Diary',
+      diaryWrite: 'Dear diary… how was your day?',
+      diaryEmpty1: 'No diary entries yet.', diaryEmpty2: 'Write about your day ♥',
+      diaryEarlier: 'Earlier entries', diaryToday: 'Today',
+      footerDiary: 'Your words stay safe on this device ♡',
+      entriesLabel: 'Entries', useTime: 'Set a time on notes',
+      useTimeNote: 'Adds a time picker to each note', font: 'Font',
+      moreColors: 'More colours',
     },
     es: {
       weekKicker: 'Agenda semanal', monthKicker: 'Calendario mensual',
       listKicker: 'Resumen de notas', eventsKicker: 'Cumpleaños y aniversarios',
       listTitle: 'Resumen', eventsTitle: 'Eventos',
-      segWeek: 'Semana', segMonth: 'Mes', segList: 'Resumen', segEvents: 'Eventos',
+      segWeek: 'Semana', segMonth: 'Mes', segList: 'Resumen', segEvents: 'Eventos', segDiary: 'Diario',
       today: 'Hoy', back: 'Atrás', forward: 'Adelante',
       addEntry: 'Añadir nota', addMore: 'Añadir',
       writeHere: 'Escribe aquí…', textColor: 'Color del texto', delete: 'Eliminar',
@@ -683,6 +829,15 @@ window.EdyI18n = (function () {
       countryNote: 'Define qué días festivos aparecen', close: 'Listo', settingsAria: 'Ajustes',
       decoration: 'Decoración', tagColor: 'Color de etiqueta',
       decoNone: 'Ninguna', decoFlowers: 'Flores', decoStars: 'Estrellas', decoHearts: 'Corazones', decoLeaves: 'Hojas',
+      decoMoons: 'Lunas', decoButterflies: 'Mariposas', decoSnow: 'Nieve', decoClouds: 'Nubes', decoConfetti: 'Confeti', decoSuns: 'Soles',
+      diaryKicker: 'Entradas del diario', diaryTitle: 'Diario',
+      diaryWrite: 'Querido diario… ¿qué tal tu día?',
+      diaryEmpty1: 'Aún no hay entradas.', diaryEmpty2: 'Escribe sobre tu día ♥',
+      diaryEarlier: 'Entradas anteriores', diaryToday: 'Hoy',
+      footerDiary: 'Tus palabras se guardan a salvo en este dispositivo ♡',
+      entriesLabel: 'Notas', useTime: 'Poner hora en las notas',
+      useTimeNote: 'Añade un selector de hora a cada nota', font: 'Tipografía',
+      moreColors: 'Más colores',
     },
   };
 
@@ -1538,12 +1693,54 @@ const PALETTES = {
       '--shadow': 'rgba(0,0,0,0.5)', '--entry-hover': '#2a2215', '--floral': '#8a7038',
     },
   },
+  mint: {
+    label: 'Salvía', labels: { is: 'Salvía', en: 'Sage', es: 'Salvia' }, dots: ['#e6efe8', '#8fc0a3', '#5b9a78'],
+    vars: {
+      '--bg': '#e6efe8', '--bg-glow': '#f1f8f3', '--surface': '#fbfffc',
+      '--ink': '#3f4f45', '--soft': '#93a89a', '--accent': '#8fc0a3', '--accent-deep': '#5b9a78',
+      '--line': '#dde9e1', '--holiday-bg': '#e3f1e8', '--badge': '#e6f1ea', '--weekend': '#f3f8f4',
+      '--shadow': 'rgba(74,128,98,0.14)', '--entry-hover': '#eef6f0', '--floral': '#a7c2ad',
+    },
+  },
+  ocean: {
+    label: 'Sjór', labels: { is: 'Sjór', en: 'Ocean', es: 'Océano' }, dots: ['#e3eef1', '#74b3c0', '#3d8597'],
+    vars: {
+      '--bg': '#e3eef1', '--bg-glow': '#eef6f8', '--surface': '#fafdff',
+      '--ink': '#2c4750', '--soft': '#88a3ab', '--accent': '#74b3c0', '--accent-deep': '#3d8597',
+      '--line': '#d8e7ec', '--holiday-bg': '#e0eff2', '--badge': '#e4eff2', '--weekend': '#f1f7f8',
+      '--shadow': 'rgba(45,110,128,0.15)', '--entry-hover': '#ecf4f6', '--floral': '#93b9c2',
+    },
+  },
+  peach: {
+    label: 'Apríkósa', labels: { is: 'Apríkósa', en: 'Peach', es: 'Melocotón' }, dots: ['#f5e7df', '#e8a982', '#cf7d52'],
+    vars: {
+      '--bg': '#f5e7df', '--bg-glow': '#fdf2ea', '--surface': '#fffbf8',
+      '--ink': '#5e4a3f', '--soft': '#c0a094', '--accent': '#e8a982', '--accent-deep': '#cf7d52',
+      '--line': '#f0ddd0', '--holiday-bg': '#fbe7da', '--badge': '#f8e6d9', '--weekend': '#fdf4ee',
+      '--shadow': 'rgba(198,120,80,0.15)', '--entry-hover': '#fbeee4', '--floral': '#d9b59a',
+    },
+  },
+  forest: {
+    label: 'Skógur', labels: { is: 'Skógur', en: 'Forest', es: 'Bosque' }, dots: ['#20342a', '#7fc69a', '#5aa87b'],
+    vars: {
+      '--bg': '#14201a', '--bg-glow': '#20342a', '--surface': '#1c2a23',
+      '--ink': '#e7f0e8', '--soft': '#8aa193', '--accent': '#7fc69a', '--accent-deep': '#5aa87b',
+      '--line': '#2a3a31', '--holiday-bg': '#21342a', '--badge': '#233429', '--weekend': '#18241d',
+      '--shadow': 'rgba(0,0,0,0.45)', '--entry-hover': '#233429', '--floral': '#5f8f6f',
+    },
+  },
 };
 
 const FONTS = {
   Comfortaa: "'Comfortaa', sans-serif",
-  Quicksand: "var(--heading-font), 'Quicksand', sans-serif",
+  Quicksand: "'Quicksand', sans-serif",
+  Fredoka: "'Fredoka', sans-serif",
+  'Baloo 2': "'Baloo 2', system-ui, sans-serif",
+  Chewy: "'Chewy', system-ui, cursive",
+  Caveat: "'Caveat', cursive",
+  Pacifico: "'Pacifico', cursive",
 };
+const FONT_LIST = ['Comfortaa', 'Quicksand', 'Fredoka', 'Baloo 2', 'Chewy', 'Caveat', 'Pacifico'];
 
 // Per-entry text colours — soft, readable on light surfaces.
 const TEXT_COLORS = [
@@ -1555,6 +1752,19 @@ const TEXT_COLORS = [
   { name: 'Grænt',       value: '#43b07f' },
 ];
 const DEFAULT_COLOR = 'var(--ink)';
+
+// Curated matte "colour-wheel" palette — muted, sophisticated tones that flow
+// through the hue circle. Used wherever a colour is picked (notes, tags).
+const MATTE_COLORS = [
+  '#b85c5c', '#c96a6a', '#cf7691', '#c96a85', '#b06a9b', '#9a6fb0', '#7f72c4',
+  '#6f78c4', '#5b7fb0', '#5f8fc0', '#5aa0bc', '#4fa7a7', '#54a892', '#5fab86',
+  '#6fa86f', '#82a866', '#9aa85f', '#b3a458', '#c9a14f', '#d1924f', '#cf7d52',
+  '#b5765f', '#9b8f86', '#8a7f78', '#7e756b', '#6f6f7e', '#8a6a78', '#5a6b66',
+];
+
+// stable per-entry id (used for keys + drag reordering)
+let _entrySeq = 0;
+function newEntryId() { return 'en_' + Date.now().toString(36) + '_' + (_entrySeq++); }
 
 /* ---------------- date helpers ---------------- */
 function pad(n) { return String(n).padStart(2, '0'); }
@@ -1574,8 +1784,8 @@ function sameMonth(a, b) { return a.getFullYear() === b.getFullYear() && a.getMo
 /* ---------------- persistence ---------------- */
 const STORE = 'edyCalendar.entries.v1';
 function normEntry(e) {
-  if (typeof e === 'string') return { text: e, color: DEFAULT_COLOR };
-  return { text: e.text || '', color: e.color || DEFAULT_COLOR };
+  if (typeof e === 'string') return { id: newEntryId(), text: e, color: DEFAULT_COLOR, time: null };
+  return { id: e.id || newEntryId(), text: e.text || '', color: e.color || DEFAULT_COLOR, time: e.time || null };
 }
 function loadEntries() {
   try {
@@ -1616,6 +1826,11 @@ function loadEvents() {
 function saveEvents(arr) {
   try { localStorage.setItem(EVENTS_STORE, JSON.stringify(arr)); } catch (e) {}
 }
+
+/* ---- diary (Dagbók) ---- */
+const DIARY_STORE = 'edyCalendar.diary.v1';
+function loadDiary() { try { return JSON.parse(localStorage.getItem(DIARY_STORE)) || {}; } catch (e) { return {}; } }
+function saveDiary(obj) { try { localStorage.setItem(DIARY_STORE, JSON.stringify(obj)); } catch (e) {} }
 function midnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 function nextOccurrence(month, day, from) {
   const f0 = midnight(from);
@@ -1774,10 +1989,186 @@ function LeavesDecor() {
   );
 }
 
+/* ---- crescent moons ---- */
+function Moon({ cx, cy, r, deep }) {
+  return <path d={`M${cx} ${cy - r} A${r} ${r} 0 1 0 ${cx} ${cy + r} A${r * 0.74} ${r * 0.74} 0 1 1 ${cx} ${cy - r} Z`}
+    fill={deep ? 'var(--accent-deep)' : 'var(--accent)'} />;
+}
+function MoonCluster({ className, flip }) {
+  return (
+    <svg className={className} viewBox="0 0 200 240" fill="none" style={flip ? { transform: 'scaleX(-1)' } : null}>
+      <g fill="var(--floral)">
+        <circle cx="120" cy="60" r="1.8" /><circle cx="170" cy="40" r="1.5" />
+        <circle cx="96" cy="120" r="1.6" /><circle cx="176" cy="118" r="1.6" />
+        <circle cx="72" cy="180" r="1.8" /><circle cx="140" cy="158" r="1.4" />
+      </g>
+      <Moon cx={150} cy={32} r={17} deep />
+      <Moon cx={106} cy={96} r={9} />
+      <Moon cx={182} cy={140} r={11} deep />
+      <Moon cx={70} cy={190} r={13} />
+    </svg>
+  );
+}
+function MoonsDecor() {
+  return (<div className="florals" aria-hidden="true"><MoonCluster className="sprig-tr" /><MoonCluster className="sprig-bl" flip /></div>);
+}
+
+/* ---- butterflies ---- */
+function Butterfly({ cx, cy, s = 1, deep }) {
+  const col = deep ? 'var(--accent-deep)' : 'var(--accent)';
+  return (
+    <g transform={`translate(${cx} ${cy})`}>
+      <ellipse cx={-7 * s} cy={-6 * s} rx={7 * s} ry={9 * s} fill={col} opacity="0.92" />
+      <ellipse cx={7 * s} cy={-6 * s} rx={7 * s} ry={9 * s} fill={col} opacity="0.92" />
+      <ellipse cx={-6 * s} cy={6.5 * s} rx={5.4 * s} ry={7 * s} fill={col} opacity="0.66" />
+      <ellipse cx={6 * s} cy={6.5 * s} rx={5.4 * s} ry={7 * s} fill={col} opacity="0.66" />
+      <rect x={-1 * s} y={-11 * s} width={2 * s} height={22 * s} rx={1 * s} fill="var(--accent-deep)" />
+    </g>
+  );
+}
+function ButterflyCluster({ className, flip }) {
+  return (
+    <svg className={className} viewBox="0 0 200 240" fill="none" style={flip ? { transform: 'scaleX(-1)' } : null}>
+      <g stroke="var(--floral)" strokeWidth="1.4" strokeLinecap="round" strokeDasharray="2 5" fill="none" opacity="0.5">
+        <path d="M150 30 C120 70 130 120 90 170" />
+      </g>
+      <Butterfly cx={150} cy={30} s={1.25} deep />
+      <Butterfly cx={104} cy={104} s={0.92} />
+      <Butterfly cx={182} cy={140} s={0.8} deep />
+      <Butterfly cx={74} cy={188} s={1.08} />
+    </svg>
+  );
+}
+function ButterfliesDecor() {
+  return (<div className="florals" aria-hidden="true"><ButterflyCluster className="sprig-tr" /><ButterflyCluster className="sprig-bl" flip /></div>);
+}
+
+/* ---- snowflakes ---- */
+function Snowflake({ cx, cy, s = 1, deep }) {
+  const col = deep ? 'var(--accent-deep)' : 'var(--accent)';
+  return (
+    <g stroke={col} strokeWidth={1.7 * s} strokeLinecap="round">
+      {[0, 60, 120, 180, 240, 300].map((a) => (
+        <g key={a} transform={`rotate(${a} ${cx} ${cy})`}>
+          <line x1={cx} y1={cy} x2={cx} y2={cy - 14 * s} />
+          <line x1={cx} y1={cy - 9 * s} x2={cx - 4 * s} y2={cy - 12 * s} />
+          <line x1={cx} y1={cy - 9 * s} x2={cx + 4 * s} y2={cy - 12 * s} />
+        </g>
+      ))}
+    </g>
+  );
+}
+function SnowCluster({ className, flip }) {
+  return (
+    <svg className={className} viewBox="0 0 200 240" fill="none" style={flip ? { transform: 'scaleX(-1)' } : null}>
+      <g fill="var(--floral)">
+        <circle cx="116" cy="70" r="1.6" /><circle cx="176" cy="106" r="1.6" /><circle cx="88" cy="150" r="1.6" />
+      </g>
+      <Snowflake cx={150} cy={34} s={1.2} deep />
+      <Snowflake cx={104} cy={104} s={0.85} />
+      <Snowflake cx={182} cy={142} s={0.8} deep />
+      <Snowflake cx={72} cy={188} s={1.05} />
+    </svg>
+  );
+}
+function SnowDecor() {
+  return (<div className="florals" aria-hidden="true"><SnowCluster className="sprig-tr" /><SnowCluster className="sprig-bl" flip /></div>);
+}
+
+/* ---- clouds & rain ---- */
+function Cloud({ cx, cy, s = 1 }) {
+  const c = 'var(--accent)';
+  return (
+    <g opacity="0.92">
+      <circle cx={cx - 11 * s} cy={cy} r={9 * s} fill={c} />
+      <circle cx={cx + 11 * s} cy={cy} r={9 * s} fill={c} />
+      <circle cx={cx} cy={cy - 7 * s} r={11 * s} fill={c} />
+      <rect x={cx - 20 * s} y={cy} width={40 * s} height={10 * s} rx={5 * s} fill={c} />
+    </g>
+  );
+}
+function Drop({ cx, cy, s = 1 }) {
+  return <path d={`M${cx} ${cy} C${cx - 4 * s} ${cy + 6 * s} ${cx - 4 * s} ${cy + 11 * s} ${cx} ${cy + 11 * s} C${cx + 4 * s} ${cy + 11 * s} ${cx + 4 * s} ${cy + 6 * s} ${cx} ${cy} Z`}
+    fill="var(--accent-deep)" opacity="0.78" />;
+}
+function CloudCluster({ className, flip }) {
+  return (
+    <svg className={className} viewBox="0 0 200 240" fill="none" style={flip ? { transform: 'scaleX(-1)' } : null}>
+      <Cloud cx={146} cy={36} s={1.2} />
+      <Drop cx={132} cy={58} s={1} /><Drop cx={150} cy={62} s={1} /><Drop cx={166} cy={56} s={0.9} />
+      <Cloud cx={86} cy={132} s={0.85} />
+      <Drop cx={78} cy={150} s={0.85} /><Drop cx={94} cy={152} s={0.85} />
+      <Cloud cx={168} cy={170} s={0.7} />
+    </svg>
+  );
+}
+function CloudsDecor() {
+  return (<div className="florals" aria-hidden="true"><CloudCluster className="sprig-tr" /><CloudCluster className="sprig-bl" flip /></div>);
+}
+
+/* ---- confetti ---- */
+function ConfettiCluster({ className, flip }) {
+  const bits = [
+    [148, 30, 'c', 4, 'deep'], [120, 50, 'r', 5, 'accent'], [172, 58, 'l', 0, 'floral'],
+    [104, 96, 'c', 3, 'accent'], [136, 110, 'r', 4, 'deep'], [178, 120, 'c', 3.5, 'floral'],
+    [88, 150, 'l', 0, 'deep'], [120, 162, 'c', 4, 'accent'], [156, 178, 'r', 5, 'floral'],
+    [72, 196, 'c', 3.5, 'deep'], [190, 90, 'c', 3, 'accent'],
+  ];
+  const col = (k) => k === 'deep' ? 'var(--accent-deep)' : k === 'floral' ? 'var(--floral)' : 'var(--accent)';
+  return (
+    <svg className={className} viewBox="0 0 200 240" fill="none" style={flip ? { transform: 'scaleX(-1)' } : null}>
+      {bits.map(([x, y, t, r, c], i) => {
+        if (t === 'c') return <circle key={i} cx={x} cy={y} r={r} fill={col(c)} />;
+        if (t === 'r') return <rect key={i} x={x - r} y={y - r} width={r * 2} height={r * 2} rx={1.5} fill={col(c)} transform={`rotate(${(x + y) % 60} ${x} ${y})`} />;
+        return <line key={i} x1={x - 5} y1={y} x2={x + 5} y2={y} stroke={col(c)} strokeWidth="2.4" strokeLinecap="round" transform={`rotate(${(x * 2) % 90} ${x} ${y})`} />;
+      })}
+    </svg>
+  );
+}
+function ConfettiDecor() {
+  return (<div className="florals" aria-hidden="true"><ConfettiCluster className="sprig-tr" /><ConfettiCluster className="sprig-bl" flip /></div>);
+}
+
+/* ---- suns ---- */
+function Sun({ cx, cy, s = 1, deep }) {
+  const col = deep ? 'var(--accent-deep)' : 'var(--accent)';
+  return (
+    <g>
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
+        <line key={a} x1={cx} y1={cy - 12 * s} x2={cx} y2={cy - 18 * s} stroke={col} strokeWidth={2.2 * s}
+          strokeLinecap="round" transform={`rotate(${a} ${cx} ${cy})`} />
+      ))}
+      <circle cx={cx} cy={cy} r={9 * s} fill={col} />
+    </g>
+  );
+}
+function SunCluster({ className, flip }) {
+  return (
+    <svg className={className} viewBox="0 0 200 240" fill="none" style={flip ? { transform: 'scaleX(-1)' } : null}>
+      <g fill="var(--floral)">
+        <circle cx="116" cy="74" r="1.6" /><circle cx="178" cy="110" r="1.5" /><circle cx="90" cy="156" r="1.6" />
+      </g>
+      <Sun cx={150} cy={34} s={1.25} deep />
+      <Sun cx={104} cy={108} s={0.82} />
+      <Sun cx={182} cy={146} s={0.78} deep />
+      <Sun cx={72} cy={190} s={1.05} />
+    </svg>
+  );
+}
+function SunsDecor() {
+  return (<div className="florals" aria-hidden="true"><SunCluster className="sprig-tr" /><SunCluster className="sprig-bl" flip /></div>);
+}
+
 function Decoration({ kind }) {
   if (kind === 'stars') return <StarsDecor />;
   if (kind === 'hearts') return <HeartsDecor />;
   if (kind === 'leaves') return <LeavesDecor />;
+  if (kind === 'moons') return <MoonsDecor />;
+  if (kind === 'butterflies') return <ButterfliesDecor />;
+  if (kind === 'snow') return <SnowDecor />;
+  if (kind === 'clouds') return <CloudsDecor />;
+  if (kind === 'confetti') return <ConfettiDecor />;
+  if (kind === 'suns') return <SunsDecor />;
   if (kind === 'none') return null;
   return <Florals />;
 }
@@ -1806,6 +2197,64 @@ function DecoGlyph({ kind }) {
       <path d="M11.6 22 C11.6 14 8.5 7.5 4 6.6 C4 14.5 7 21.2 11.6 22Z" fill={fill} opacity="0.55" />
     </svg>
   );
+  if (kind === 'moons') return (
+    <svg viewBox="0 0 24 24" width="22" height="22">
+      <path d="M15 2.5 A9.5 9.5 0 1 0 15 21.5 A7.2 7.2 0 1 1 15 2.5Z" fill={fill} />
+    </svg>
+  );
+  if (kind === 'butterflies') return (
+    <svg viewBox="0 0 24 24" width="22" height="22">
+      <g transform="translate(12 12)">
+        <ellipse cx="-4" cy="-3" rx="4" ry="5" fill={fill} />
+        <ellipse cx="4" cy="-3" rx="4" ry="5" fill={fill} />
+        <ellipse cx="-3.4" cy="4" rx="3" ry="4" fill={fill} opacity="0.6" />
+        <ellipse cx="3.4" cy="4" rx="3" ry="4" fill={fill} opacity="0.6" />
+        <rect x="-0.6" y="-6.5" width="1.2" height="13" rx="0.6" fill={fill} />
+      </g>
+    </svg>
+  );
+  if (kind === 'snow') return (
+    <svg viewBox="0 0 24 24" width="22" height="22">
+      <g stroke={fill} strokeWidth="1.5" strokeLinecap="round">
+        {[0, 60, 120, 180, 240, 300].map((a) => (
+          <g key={a} transform={`rotate(${a} 12 12)`}>
+            <line x1="12" y1="12" x2="12" y2="3" />
+            <line x1="12" y1="5.5" x2="9.8" y2="4" />
+            <line x1="12" y1="5.5" x2="14.2" y2="4" />
+          </g>
+        ))}
+      </g>
+    </svg>
+  );
+  if (kind === 'clouds') return (
+    <svg viewBox="0 0 24 24" width="22" height="22">
+      <g fill={fill}>
+        <circle cx="9" cy="12" r="3.6" /><circle cx="15" cy="12" r="3.6" />
+        <circle cx="12" cy="9.4" r="4.4" /><rect x="5.4" y="12" width="13.2" height="3.6" rx="1.8" />
+      </g>
+      <path d="M9 18 q-1 1.4 0 2.4 q1-1 0-2.4Z" fill={fill} opacity="0.7" />
+      <path d="M15 18 q-1 1.4 0 2.4 q1-1 0-2.4Z" fill={fill} opacity="0.7" />
+    </svg>
+  );
+  if (kind === 'confetti') return (
+    <svg viewBox="0 0 24 24" width="22" height="22">
+      <g fill={fill}>
+        <circle cx="6" cy="7" r="1.8" /><rect x="13.5" y="4.5" width="3" height="3" rx="0.6" transform="rotate(20 15 6)" />
+        <circle cx="18" cy="13" r="1.6" /><rect x="5.5" y="13" width="3" height="3" rx="0.6" transform="rotate(-15 7 14.5)" />
+        <circle cx="12" cy="18.5" r="1.8" /><circle cx="11.5" cy="10" r="1.5" />
+      </g>
+    </svg>
+  );
+  if (kind === 'suns') return (
+    <svg viewBox="0 0 24 24" width="22" height="22">
+      <circle cx="12" cy="12" r="4.4" fill={fill} />
+      <g stroke={fill} strokeWidth="1.7" strokeLinecap="round">
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
+          <line key={a} x1="12" y1="5.4" x2="12" y2="3" transform={`rotate(${a} 12 12)`} />
+        ))}
+      </g>
+    </svg>
+  );
   return (
     <svg viewBox="0 0 24 24" width="22" height="22">
       {[0, 72, 144, 216, 288].map((a) => (
@@ -1820,11 +2269,43 @@ const DECO_OPTS = [
   { id: 'stars', label: 'decoStars' },
   { id: 'hearts', label: 'decoHearts' },
   { id: 'leaves', label: 'decoLeaves' },
+  { id: 'moons', label: 'decoMoons' },
+  { id: 'butterflies', label: 'decoButterflies' },
+  { id: 'snow', label: 'decoSnow' },
+  { id: 'clouds', label: 'decoClouds' },
+  { id: 'confetti', label: 'decoConfetti' },
+  { id: 'suns', label: 'decoSuns' },
   { id: 'none', label: 'decoNone' },
 ];
 
+/* ---------------- matte colour-wheel popover ---------------- */
+function ColorWheel({ value, onPick, withDefault }) {
+  return (
+    <div className="color-pop wheel" role="listbox" aria-label={tr('moreColors')}>
+      <div className="cw-grid">
+        {MATTE_COLORS.map((c) => (
+          <button key={c} type="button" aria-label={c}
+            className={'cw-sw' + (value === c ? ' sel' : '')}
+            style={{ background: c }}
+            onClick={() => onPick(c)} />
+        ))}
+      </div>
+      {withDefault && (
+        <div className="cw-default">
+          <button type="button" className={value === DEFAULT_COLOR ? 'sel' : ''}
+            onClick={() => onPick(DEFAULT_COLOR)}>
+            <span className="dot" style={{ background: 'var(--ink)' }} />
+            <span style={{ fontWeight: 700, color: 'var(--ink)' }}>Aa</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ---------------- entry row ---------------- */
-function EntryRow({ value, autoFocus, onText, onColor, onRemove, onEnter }) {
+const EntryRow = React.forwardRef(function EntryRow(
+  { value, autoFocus, showTime, showGrip, gripProps, dragging, lifted, onText, onColor, onTime, onRemove, onEnter }, rootRef) {
   const ref = useRef(null);
   const wrapRef = useRef(null);
   const [pick, setPick] = useState(false);
@@ -1841,24 +2322,30 @@ function EntryRow({ value, autoFocus, onText, onColor, onRemove, onEnter }) {
     return () => document.removeEventListener('pointerdown', onDoc);
   }, [pick]);
 
+  const cls = 'entry' + (dragging ? ' is-dragging' : '') + (lifted ? ' lifted' : '');
   return (
-    <div className="entry">
+    <div className={cls} ref={rootRef}>
+      {showGrip && (
+        <span className="entry-grip" title="" aria-label="reorder" {...gripProps}>
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>
+        </span>
+      )}
       <div className="entry-color" ref={wrapRef}>
         <button className="entry-color-btn" title={tr('textColor')}
           onClick={() => setPick((p) => !p)}>
           <span className="dot" style={{ background: value.color }} />
         </button>
         {pick && (
-          <div className="color-pop">
-            {TEXT_COLORS.map((c) => (
-              <button key={c.value} title={c.name}
-                className={'sw' + (c.value === value.color ? ' sel' : '')}
-                style={{ background: c.value }}
-                onClick={() => { onColor(c.value); setPick(false); }} />
-            ))}
-          </div>
+          <ColorWheel value={value.color} withDefault
+            onPick={(c) => { onColor(c); setPick(false); }} />
         )}
       </div>
+      {showTime && (
+        <span className="entry-time">
+          <input type="time" value={value.time || ''}
+            onChange={(e) => onTime(e.target.value || null)} />
+        </span>
+      )}
       <textarea
         ref={ref}
         rows={1}
@@ -1879,10 +2366,105 @@ function EntryRow({ value, autoFocus, onText, onColor, onRemove, onEnter }) {
       </button>
     </div>
   );
+});
+
+/* ---------------- draggable entry list (per-day reorder) ---------------- */
+function DraggableEntries({ dk, list, showTime, focusKey, onText, onColor, onTime, onRemove, onAdd, onReorder }) {
+  const rowEls = useRef(new Map());     // id -> DOM node
+  const drag = useRef(null);            // transient drag session
+  const [dragId, setDragId] = useState(null);
+  const [overIndex, setOverIndex] = useState(null);
+  const canDrag = list.length > 1;
+
+  const clearTransforms = () => {
+    rowEls.current.forEach((el) => { if (el) { el.style.transform = ''; el.style.zIndex = ''; } });
+  };
+
+  const onGripDown = (id) => (e) => {
+    if (!canDrag) return;
+    e.preventDefault();
+    const order = list.map((x) => x.id);
+    const i0 = order.indexOf(id);
+    const els = order.map((x) => rowEls.current.get(x));
+    const rects = els.map((el) => el.getBoundingClientRect());
+    // stride = distance between consecutive row tops (includes the 2px gap)
+    let stride = rects[i0].height + 2;
+    if (rects[i0 + 1]) stride = rects[i0 + 1].top - rects[i0].top;
+    else if (rects[i0 - 1]) stride = rects[i0].top - rects[i0 - 1].top;
+    drag.current = { id, i0, startY: e.clientY, rects, stride, order, target: i0 };
+    setDragId(id); setOverIndex(i0);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  };
+
+  const onMove = (e) => {
+    const d = drag.current; if (!d) return;
+    const dy = e.clientY - d.startY;
+    const self = rowEls.current.get(d.id);
+    if (self) { self.style.transform = `translateY(${dy}px)`; self.style.zIndex = '6'; }
+    // how many non-dragged rows sit (originally) above the pointer
+    let t = 0;
+    for (let j = 0; j < d.rects.length; j++) {
+      if (j === d.i0) continue;
+      const c = d.rects[j].top + d.rects[j].height / 2;
+      if (e.clientY > c) t++;
+    }
+    d.target = t;
+    // open a gap at the target slot by shifting the in-between rows
+    d.order.forEach((id, j) => {
+      if (id === d.id) return;
+      const el = rowEls.current.get(id);
+      if (!el) return;
+      let ty = 0;
+      if (d.target > d.i0 && j > d.i0 && j <= d.target) ty = -d.stride;
+      else if (d.target < d.i0 && j >= d.target && j < d.i0) ty = d.stride;
+      el.style.transform = ty ? `translateY(${ty}px)` : '';
+    });
+    setOverIndex(d.target);
+  };
+
+  const onUp = () => {
+    const d = drag.current;
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+    clearTransforms();
+    setDragId(null); setOverIndex(null);
+    drag.current = null;
+    if (d && d.target !== d.i0) onReorder(dk, d.i0, d.target);
+  };
+
+  useEffect(() => () => {
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+  }, []);
+
+  return (
+    <div className={'entries' + (dragId ? ' dragging' : '')}>
+      {list.map((entry, i) => (
+        <EntryRow
+          key={entry.id}
+          ref={(el) => { if (el) rowEls.current.set(entry.id, el); else rowEls.current.delete(entry.id); }}
+          value={entry}
+          showTime={showTime}
+          showGrip={canDrag}
+          gripProps={{ onPointerDown: onGripDown(entry.id) }}
+          dragging={dragId === entry.id}
+          lifted={dragId === entry.id}
+          autoFocus={focusKey === entry.id}
+          onText={(v) => onText(dk, i, v)}
+          onColor={(c) => onColor(dk, i, c)}
+          onTime={(t) => onTime(dk, i, t)}
+          onRemove={() => onRemove(dk, i)}
+          onEnter={() => onAdd(dk)}
+        />
+      ))}
+    </div>
+  );
 }
 
 /* ---------------- day card ---------------- */
-function DayCard({ date, isToday, picked, entries, dayEvents, tags, holiday, onAdd, onText, onColor, onRemove, focusKey }) {
+function DayCard({ date, isToday, picked, entries, dayEvents, tags, holiday, showTime, onAdd, onText, onColor, onTime, onRemove, onReorder, focusKey }) {
   const dow = WEEKDAYS[(date.getDay() + 6) % 7];
   const weekend = date.getDay() === 0 || date.getDay() === 6;
   const dk = keyOf(date);
@@ -1893,6 +2475,7 @@ function DayCard({ date, isToday, picked, entries, dayEvents, tags, holiday, onA
   if (holiday && holiday.kind === 'public') cls.push('holiday');
   if (weekend) cls.push('weekend');
   if (list.length) cls.push('has-entries');
+  if (list.length > 1) cls.push('reorderable');
 
   return (
     <div className={cls.join(' ')}>
@@ -1933,19 +2516,18 @@ function DayCard({ date, isToday, picked, entries, dayEvents, tags, holiday, onA
       )}
 
       {list.length > 0 && (
-        <div className="entries">
-          {list.map((entry, i) => (
-            <EntryRow
-              key={dk + ':' + i}
-              value={entry}
-              autoFocus={focusKey === dk + ':' + i}
-              onText={(v) => onText(dk, i, v)}
-              onColor={(c) => onColor(dk, i, c)}
-              onRemove={() => onRemove(dk, i)}
-              onEnter={() => onAdd(dk)}
-            />
-          ))}
-        </div>
+        <DraggableEntries
+          dk={dk}
+          list={list}
+          showTime={showTime}
+          focusKey={focusKey}
+          onText={onText}
+          onColor={onColor}
+          onTime={onTime}
+          onRemove={onRemove}
+          onAdd={onAdd}
+          onReorder={onReorder}
+        />
       )}
 
       <button className="add-entry" onClick={() => onAdd(dk)}>
@@ -2087,7 +2669,9 @@ function ListView({ entries, events, tags, today, onPick, holidayFor }) {
               {items.map((e, i) => (
                 <div key={i} className="list-item">
                   <span className="b" style={{ background: e.color }} />
-                  <span style={{ color: e.color }}>{e.text}</span>
+                  <span style={{ color: e.color }}>
+                    {e.time && <span className="list-time">{e.time}</span>}{e.text}
+                  </span>
                 </div>
               ))}
             </div>
@@ -2193,7 +2777,7 @@ function EventsView({ events, tags, today, onAdd, onUpdate, onRemove, onAddTag, 
             <div className="ev-tagcolors">
               <span className="ev-tagcolors-lbl">{tr('tagColor')}</span>
               <div className="ev-sw-row">
-                {TAG_COLOR_OPTIONS.map((c) => (
+                {MATTE_COLORS.map((c) => (
                   <button key={c} type="button"
                     className={'ev-sw' + (selTag.color === c ? ' sel' : '')}
                     style={{ background: c }}
@@ -2275,9 +2859,86 @@ function EventsView({ events, tags, today, onAdd, onUpdate, onRemove, onAddTag, 
   );
 }
 
+/* ---------------- diary view (Dagbók) ---------------- */
+function DiaryView({ diary, today, holidayFor, onText }) {
+  const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const [sel, setSel] = useState(t0);
+  const dk = keyOf(sel);
+  const text = diary[dk] || '';
+  const dow = WEEKDAYS[(sel.getDay() + 6) % 7];
+  const isToday = sameDay(sel, today);
+  const hol = holidayFor(dk);
+  const taRef = useRef(null);
+  useEffect(() => {
+    const el = taRef.current; if (!el) return;
+    el.style.height = 'auto'; el.style.height = Math.max(168, el.scrollHeight) + 'px';
+  }, [text, dk]);
+
+  const shift = (n) => setSel((d) => addDays(d, n));
+  const dateLabel = `${sel.getDate()}. ${MONTHS[sel.getMonth()]} ${sel.getFullYear()}`;
+  const keys = Object.keys(diary).filter((k) => diary[k] && diary[k].trim()).sort().reverse();
+
+  return (
+    <div className="diary-wrap">
+      <div className="diary-nav">
+        <button className="dn-btn" aria-label={tr('back')} onClick={() => shift(-1)}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
+        </button>
+        <div className="dn-mid">
+          <div className="dn-dow">{dow}</div>
+          <div className="dn-date">{dateLabel}</div>
+          {isToday
+            ? <span className="dn-today">{tr('diaryToday')}</span>
+            : <button className="dn-today" onClick={() => setSel(t0)}>{tr('diaryToday')}</button>}
+          {hol && <div className="holiday-name" style={{ justifyContent: 'center', marginTop: 6 }}>{hol.name}</div>}
+        </div>
+        <button className="dn-btn" aria-label={tr('forward')} onClick={() => shift(1)}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7" /></svg>
+        </button>
+      </div>
+
+      <div className="diary-sheet">
+        <textarea ref={taRef} value={text} placeholder={tr('diaryWrite')}
+          onChange={(e) => onText(dk, e.target.value)} />
+        <div className="diary-count">{text.trim().length || ''}</div>
+      </div>
+
+      {keys.length === 0 ? (
+        <div className="list-empty" style={{ marginTop: 22 }}>
+          <div style={{ fontSize: 30, marginBottom: 12 }}>✎</div>
+          {tr('diaryEmpty1')}<br />{tr('diaryEmpty2')}
+        </div>
+      ) : (
+        <div>
+          <p className="set-label" style={{ margin: '4px 2px 12px' }}>{tr('diaryEarlier')}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+            {keys.map((k) => {
+              const [y, m, da] = k.split('-').map(Number);
+              const d = new Date(y, m - 1, da);
+              return (
+                <button key={k} className={'diary-jumpto' + (k === dk ? ' cur' : '')}
+                  onClick={() => setSel(new Date(y, m - 1, da))}>
+                  <span className="dj-badge">
+                    <span className="dn">{da}</span>
+                    <span className="dm">{MONTHS_SHORT[m - 1]}</span>
+                  </span>
+                  <span className="dj-main">
+                    <span className="dj-dow">{WEEKDAYS[(d.getDay() + 6) % 7]} · {y}</span>
+                    <span className="dj-excerpt">{diary[k]}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ---------------- user settings (persisted) ---------------- */
 const SETTINGS_STORE = 'edyCalendar.settings.v1';
-const DEFAULT_SETTINGS = { lang: 'is', country: 'IS', theme: 'blush', headingFont: 'Comfortaa', florals: true, decoration: 'flowers' };
+const DEFAULT_SETTINGS = { lang: 'is', country: 'IS', theme: 'blush', headingFont: 'Comfortaa', florals: true, decoration: 'flowers', showTime: false };
 const DECORATIONS = ['none', 'flowers', 'stars', 'hearts', 'leaves'];
 function loadSettings() {
   try {
@@ -2389,6 +3050,20 @@ function SettingsModal({ settings, onChange, onClose }) {
           </div>
         </div>
 
+        {/* Entries */}
+        <div className="set-sect">
+          <p className="set-label">{tr('entriesLabel')}</p>
+          <div className="set-toggle-row" style={{ borderTop: 'none', borderBottom: 'none' }}>
+            <span className="set-toggle-txt">
+              {tr('useTime')}
+              <span style={{ display: 'block', fontWeight: 500, fontSize: '12.5px', color: 'var(--soft)', marginTop: '3px' }}>{tr('useTimeNote')}</span>
+            </span>
+            <button className="set-switch" data-on={settings.showTime ? '1' : '0'}
+              aria-pressed={!!settings.showTime}
+              onClick={() => onChange('showTime', !settings.showTime)}><i /></button>
+          </div>
+        </div>
+
         {/* Appearance extras */}
         <div className="set-sect">
           <p className="set-label">{tr('appearance')}</p>
@@ -2407,13 +3082,19 @@ function SettingsModal({ settings, onChange, onClose }) {
             })}
           </div>
           <div style={{ paddingTop: 18 }}>
-            <span className="set-toggle-txt" style={{ display: 'block', marginBottom: 9 }}>{tr('headingFont')}</span>
-            <div className="set-seg">
-              {['Comfortaa', 'Quicksand'].map((f) => (
-                <button key={f} className={settings.headingFont === f ? 'on' : ''}
-                  style={{ fontFamily: FONTS[f] }}
-                  onClick={() => onChange('headingFont', f)}>{f}</button>
-              ))}
+            <span className="set-toggle-txt" style={{ display: 'block', marginBottom: 11 }}>{tr('headingFont')}</span>
+            <div className="font-grid">
+              {FONT_LIST.map((f) => {
+                const on = settings.headingFont === f;
+                return (
+                  <button key={f} className={'font-card' + (on ? ' on' : '')}
+                    onClick={() => onChange('headingFont', f)}>
+                    <span className="fc-big" style={{ fontFamily: FONTS[f] }}>Edy</span>
+                    <span className="fc-name">{f}</span>
+                    {on && <span className="deco-tick"><Tick /></span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -2444,12 +3125,14 @@ function App() {
   const [entries, setEntries] = useState(loadEntries);
   const [events, setEvents] = useState(loadEvents);
   const [tags, setTags] = useState(loadTags);
+  const [diary, setDiary] = useState(loadDiary);
   const [focusKey, setFocusKey] = useState(null);
   const [picked, setPicked] = useState(null);
 
   useEffect(() => { saveEntries(entries); }, [entries]);
   useEffect(() => { saveEvents(events); }, [events]);
   useEffect(() => { saveTags(tags); }, [tags]);
+  useEffect(() => { saveDiary(diary); }, [diary]);
   useEffect(() => { saveSettings(settings); }, [settings]);
   useEffect(() => {
     if (!picked) return;
@@ -2462,6 +3145,24 @@ function App() {
   useEffect(() => {
     document.documentElement.style.setProperty('--heading-font', FONTS[settings.headingFont] || FONTS.Comfortaa);
   }, [settings.headingFont]);
+  // keep the sticky header measured so the month weekday-row parks just below it,
+  // and drop a soft shadow once the page is scrolled
+  const headRef = useRef(null);
+  useEffect(() => {
+    const el = headRef.current; if (!el) return;
+    const setH = () => document.documentElement.style.setProperty('--head-h', el.offsetHeight + 'px');
+    setH();
+    let ro = null;
+    if (typeof ResizeObserver !== 'undefined') { ro = new ResizeObserver(setH); ro.observe(el); }
+    else window.addEventListener('resize', setH);
+    const onScroll = () => { el.classList.toggle('stuck', window.scrollY > 6); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      if (ro) ro.disconnect(); else window.removeEventListener('resize', setH);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
   // holidays follow the selected country, named in the selected language
   const holidayFor = (dk) => window.EdyHolidays.lookup(settings.country, settings.lang, dk);
   // recurring events grouped by month-day, so week & month views can show them too
@@ -2476,8 +3177,9 @@ function App() {
   /* entry operations */
   const addEntry = (dk) => setEntries((prev) => {
     const list = prev[dk] ? [...prev[dk]] : [];
-    list.push({ text: '', color: DEFAULT_COLOR });
-    setFocusKey(dk + ':' + (list.length - 1));
+    const id = newEntryId();
+    list.push({ id, text: '', color: DEFAULT_COLOR, time: null });
+    setFocusKey(id);
     return { ...prev, [dk]: list };
   });
   const setText = (dk, i, v) => { setEntries((prev) => {
@@ -2486,6 +3188,17 @@ function App() {
   }); setFocusKey(null); };
   const setColor = (dk, i, c) => setEntries((prev) => {
     const list = [...(prev[dk] || [])]; list[i] = { ...list[i], color: c };
+    return { ...prev, [dk]: list };
+  });
+  const setTime = (dk, i, v) => setEntries((prev) => {
+    const list = [...(prev[dk] || [])]; list[i] = { ...list[i], time: v };
+    return { ...prev, [dk]: list };
+  });
+  const reorderEntry = (dk, from, to) => setEntries((prev) => {
+    const list = [...(prev[dk] || [])];
+    if (from === to || from < 0 || to < 0 || from >= list.length) return prev;
+    const [m] = list.splice(from, 1);
+    list.splice(Math.min(to, list.length), 0, m);
     return { ...prev, [dk]: list };
   });
   const removeEntry = (dk, i) => setEntries((prev) => {
@@ -2504,6 +3217,12 @@ function App() {
   const toWeek = () => setView('week');
   const toList = () => setView('list');
   const toEvents = () => setView('events');
+  const toDiary = () => setView('diary');
+  const setDiaryText = (dk, text) => setDiary((prev) => {
+    const next = { ...prev };
+    if (text && text.trim()) next[dk] = text; else delete next[dk];
+    return next;
+  });
   const addEvent = (ev) => setEvents((prev) => [...prev, ev]);
   const updateEvent = (id, data) => setEvents((prev) => prev.map((e) => e.id === id ? { ...e, ...data } : e));
   const removeEvent = (id) => setEvents((prev) => prev.filter((e) => e.id !== id));
@@ -2522,8 +3241,9 @@ function App() {
     setMonthAnchor(startOfMonth(new Date()));
   };
 
-  const KICKERS = { week: tr('weekKicker'), month: tr('monthKicker'), list: tr('listKicker'), events: tr('eventsKicker') };
+  const KICKERS = { week: tr('weekKicker'), month: tr('monthKicker'), list: tr('listKicker'), events: tr('eventsKicker'), diary: tr('diaryKicker') };
   const titleMain = view === 'list' ? tr('listTitle') : view === 'events' ? tr('eventsTitle')
+    : view === 'diary' ? tr('diaryTitle')
     : (view === 'week' ? cap(MONTHS[mid.getMonth()]) : cap(MONTHS[monthAnchor.getMonth()]));
   const titleYear = view === 'week' ? mid.getFullYear() : monthAnchor.getFullYear();
   const showYear = view === 'week' || view === 'month';
@@ -2538,7 +3258,7 @@ function App() {
       </button>
       <Decoration kind={settings.decoration} />
       <div className="shell">
-        <header className="cal-head">
+        <header className="cal-head" ref={headRef}>
           <p className="kicker"><span>{KICKERS[view]}</span></p>
           <div className="month-row">
             <h1 className="month-title" style={{ fontFamily: 'var(--heading-font)' }}>
@@ -2561,6 +3281,7 @@ function App() {
               <button className={view === 'month' ? 'on' : ''} onClick={toMonth}>{tr('segMonth')}</button>
               <button className={view === 'list' ? 'on' : ''} onClick={toList}>{tr('segList')}</button>
               <button className={view === 'events' ? 'on' : ''} onClick={toEvents}>{tr('segEvents')}</button>
+              <button className={view === 'diary' ? 'on' : ''} onClick={toDiary}>{tr('segDiary')}</button>
             </div>
             {hasNav && (
               <button className={'today-btn' + (isCur ? ' is-current' : '')} onClick={goToday}>{tr('today')}</button>
@@ -2581,11 +3302,14 @@ function App() {
                 dayEvents={eventsOnDate(d)}
                 tags={tags}
                 holiday={holidayFor(keyOf(d))}
+                showTime={settings.showTime}
                 focusKey={focusKey}
                 onAdd={addEntry}
                 onText={setText}
                 onColor={setColor}
+                onTime={setTime}
                 onRemove={removeEntry}
+                onReorder={reorderEntry}
               />
             ))}
           </div>
@@ -2601,10 +3325,14 @@ function App() {
             onAdd={addEvent} onUpdate={updateEvent} onRemove={removeEvent}
             onAddTag={addTag} onRemoveTag={removeTag} onTagColor={setTagColor} />
         )}
+        {view === 'diary' && (
+          <DiaryView diary={diary} today={today} holidayFor={holidayFor} onText={setDiaryText} />
+        )}
 
         {view === 'week' && <p className="footer-note">{tr('footerWeek')}</p>}
         {view === 'list' && <p className="footer-note">{tr('footerList')}</p>}
         {view === 'events' && <p className="footer-note">{tr('footerEvents')}</p>}
+        {view === 'diary' && <p className="footer-note">{tr('footerDiary')}</p>}
       </div>
 
       {showSettings && (
@@ -2640,12 +3368,15 @@ function App() {
           options={window.EdyI18n.countries.map((c) => ({ value: c.id, label: c.label.en }))}
           onChange={(v) => updateSetting('country', v)} />
         <TweakSection label="Letur & skraut" />
-        <TweakRadio label="Fyrirsögn" value={settings.headingFont}
-          options={['Comfortaa', 'Quicksand']}
+        <TweakSelect label={tr('font')} value={settings.headingFont}
+          options={FONT_LIST}
           onChange={(v) => updateSetting('headingFont', v)} />
-        <TweakSelect label="Skraut" value={settings.decoration || 'flowers'}
-          options={[{ value: 'flowers', label: 'Blóm' }, { value: 'stars', label: 'Stjörnur' }, { value: 'hearts', label: 'Hjörtu' }, { value: 'leaves', label: 'Lauf' }, { value: 'none', label: 'Ekkert' }]}
+        <TweakSelect label={tr('decoration')} value={settings.decoration || 'flowers'}
+          options={DECO_OPTS.map((o) => ({ value: o.id, label: tr(o.label) }))}
           onChange={(v) => updateSetting('decoration', v)} />
+        <TweakSection label={tr('entriesLabel')} />
+        <TweakToggle label={tr('useTime')} value={!!settings.showTime}
+          onChange={(v) => updateSetting('showTime', v)} />
       </TweaksPanel>
     </div>
   );
